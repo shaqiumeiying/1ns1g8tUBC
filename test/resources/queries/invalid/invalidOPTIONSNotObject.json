@@ -1,0 +1,13 @@
+{
+	"title": "invalid OPTIONS not object",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"courses_avg": 97
+			}
+		},
+		"OPTIONS": null
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

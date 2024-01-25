@@ -1,0 +1,6 @@
+{
+	"title": "invalid input with not object structure",
+	"input": {"abc": "def"},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

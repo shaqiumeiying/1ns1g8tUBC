@@ -1,0 +1,27 @@
+{
+	"title": "invalid OR",
+	"input": {
+		"WHERE": {
+			"OR": [
+				{
+					"EQ": {
+						"sections_pass": 2
+					}
+				},
+				{
+					"LT": {
+						"sections_audit": 40
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_fail"
+			],
+			"ORDER": "sections_fail"
+		}
+	},
+	"errorExpected": true,
+	"expected": "ResultTooLargeError"
+}

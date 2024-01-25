@@ -1,0 +1,16 @@
+{
+	"title": "invalid NOT empty",
+	"input": {
+		"WHERE": {
+			"NOT": {}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
