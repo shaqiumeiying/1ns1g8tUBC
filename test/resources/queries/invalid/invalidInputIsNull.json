@@ -1,0 +1,6 @@
+{
+	"title": "invalid input is null",
+	"input": null,
+	"errorExpected": true,
+	"expected": "InsightError"
+}

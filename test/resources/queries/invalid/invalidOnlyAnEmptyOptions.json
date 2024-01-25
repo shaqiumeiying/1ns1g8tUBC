@@ -1,0 +1,8 @@
+{
+	"title": "invalid Only an empty options",
+	"input": {
+		"OPTIONS": {}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

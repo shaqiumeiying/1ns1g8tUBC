@@ -1,0 +1,28 @@
+{
+	"title": "invalid can not have two dataset in one query",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "adhe"
+					}
+				},
+				{
+					"IS": {
+						"top5courses_dept": "cpsc"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"top5courses_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

@@ -1,0 +1,41 @@
+{
+	"title": "valid Cpsc course avg less than 64",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "cpsc"
+					}
+				},
+				{
+					"LT": {
+						"sections_avg": 64.5
+					}
+				},
+				{
+					"IS": {
+						"sections_uuid": "46774"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_title",
+				"sections_uuid",
+				"sections_avg"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "cpsc",
+			"sections_title": "intgrt sys desgn",
+			"sections_uuid": "46774",
+			"sections_avg": 64
+		}
+	]
+}
