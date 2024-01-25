@@ -1,4 +1,12 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightResult} from "./IInsightFacade";
+import {
+	IInsightFacade,
+	InsightDataset,
+	InsightDatasetKind,
+	InsightResult,
+	InsightError,
+	NotFoundError,
+	ResultTooLargeError
+} from "./IInsightFacade";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -11,18 +19,18 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		return Promise.reject("Not implemented.");
+		return Promise.reject(new InsightError());
 	}
 
 	public async removeDataset(id: string): Promise<string> {
-		return Promise.reject("Not implemented.");
+		return Promise.reject(new InsightError());
 	}
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
-		return Promise.reject("Not implemented.");
+		return Promise.reject(new InsightError());
 	}
 
 	public async listDatasets(): Promise<InsightDataset[]> {
-		return Promise.reject("Not implemented.");
+		return Promise.reject(new InsightError());
 	}
 }
