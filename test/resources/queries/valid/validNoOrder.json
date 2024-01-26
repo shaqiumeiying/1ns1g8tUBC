@@ -1,0 +1,108 @@
+{
+	"title": "valid No order",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"EQ": {
+						"sections_avg": 90
+					}
+				},
+				{
+					"IS": {
+						"sections_title": "c*"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "chil",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "edcp",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "epse",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "germ",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "germ",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "midw",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "midw",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 90
+		}
+	]
+}

@@ -1,0 +1,30 @@
+{
+	"title": "valid check overall year is 1900",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"one overall_dept": "aanb"
+					}
+				},
+				{
+					"IS": {
+						"one overall_id": "551"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"one overall_year"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"one overall_year": 1900
+		}
+	]
+}

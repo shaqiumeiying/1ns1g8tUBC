@@ -1,0 +1,12 @@
+{
+	"title": "invalid no Options",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

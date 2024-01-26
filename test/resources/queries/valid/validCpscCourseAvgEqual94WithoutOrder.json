@@ -1,0 +1,41 @@
+{
+	"title": "valid Cpsc course avg equal 94 without order",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "cpsc"
+					}
+				},
+				{
+					"EQ": {
+						"sections_avg": 94
+					}
+				},
+				{
+					"IS": {
+						"sections_uuid": "90604"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_title",
+				"sections_uuid",
+				"sections_avg"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "cpsc",
+			"sections_title": "thry of automata",
+			"sections_uuid": "90604",
+			"sections_avg": 94
+		}
+	]
+}
