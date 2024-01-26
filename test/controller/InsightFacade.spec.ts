@@ -1,4 +1,10 @@
-import {IInsightFacade, InsightDatasetKind, InsightError, NotFoundError} from "../../src/controller/IInsightFacade";
+import {
+	IInsightFacade,
+	InsightDatasetKind,
+	InsightError,
+	NotFoundError,
+	ResultTooLargeError,
+} from "../../src/controller/IInsightFacade";
 import InsightFacade from "../../src/controller/InsightFacade";
 
 import {assert, expect, use} from "chai";
@@ -34,13 +40,19 @@ describe("InsightFacade", function () {
 	let validOneSection: string;
 	let invalidNoRankKey: string;
 	let validOneSectionOneNotJson: string;
+	let oneOverAllSection: string;
+	let top5courses: string;
 
 	// Declare datasets used in tests. You should add more datasets like this!
 	let sections: string;
 
 	before(async function () {
 		// This block runs once and loads the datasets.
+		// top 3 are the ZIP files for query tests
 		sections = await getContentFromArchives("pair.zip");
+		top5courses = await getContentFromArchives("top5Courses.zip");
+		oneOverAllSection = await getContentFromArchives("OneOverAllSection.zip");
+		// bottom are the ZIP files for addDataset tests
 		noSection = await getContentFromArchives("invalid_no_section.zip");
 		validCourses = await getContentFromArchives("valid_courses.zip");
 		validCourses2 = await getContentFromArchives("valid_courses2.zip");
@@ -768,7 +780,12 @@ describe("InsightFacade", function () {
 
 			// Add the datasets to InsightFacade once.
 			// Will *fail* if there is a problem reading ANY dataset.
-			const loadDatasetPromises = [facade.addDataset("sections", sections, InsightDatasetKind.Sections)];
+			// load datasets for the query testing
+			const loadDatasetPromises = [
+				await facade.addDataset("sections", sections, InsightDatasetKind.Sections),
+				await facade.addDataset("top5courses", top5courses, InsightDatasetKind.Sections),
+				await facade.addDataset("one overall", oneOverAllSection, InsightDatasetKind.Sections),
+			];
 
 			try {
 				await Promise.all(loadDatasetPromises);
@@ -794,7 +811,7 @@ describe("InsightFacade", function () {
 					return facade
 						.performQuery(test.input)
 						.then((result) => {
-							assert.fail("Write your assertions here!");
+							assert.deepEqual(result, test.expected);
 						})
 						.catch((err: any) => {
 							assert.fail(`performQuery threw unexpected error: ${err}`);
@@ -817,13 +834,13 @@ describe("InsightFacade", function () {
 					return facade
 						.performQuery(test.input)
 						.then((result) => {
-							assert.fail(`performQuery resolved when it should have rejected with ${test.expected}`);
+							assert.deepEqual(result, test.expected);
 						})
 						.catch((err: any) => {
-							if (test.expected === "InsightError") {
-								expect(err).to.be.instanceOf(InsightError);
+							if (test.expected === "ResultTooLargeError") {
+								assert.instanceOf(err, ResultTooLargeError);
 							} else {
-								assert.fail("Query threw unexpected error");
+								assert.instanceOf(err, InsightError);
 							}
 						});
 				});
