@@ -1,0 +1,18 @@
+{
+	"title": "valid_scomp_empty_input",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_dept": ""
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}
