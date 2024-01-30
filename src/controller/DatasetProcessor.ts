@@ -1,5 +1,6 @@
 import {InsightDatasetKind, InsightError} from "./IInsightFacade";
 import JSZip from "jszip";
+import Sections from "./Sections";
 
 export default class DatasetProcessor {
 	private validFieldList: string[] = [
@@ -15,7 +16,7 @@ export default class DatasetProcessor {
 		"year",
 	];
 
-	public async validateDataset(id: string, content: string, dataset: Map<string, any[]>): Promise<string[]> {
+	public async validateDataset(id: string, content: string, dataset: Map<string, any[]>): Promise<Sections[]> {
 		let zip = new JSZip();
 		return zip.loadAsync(content, {base64: true})
 			.then((rawFile: any) => {
@@ -59,7 +60,7 @@ export default class DatasetProcessor {
 						return Promise.reject(new InsightError("Invalid JSON"));
 					}
 				}
-				return Promise.resolve(["succe"]);
+				return Promise.resolve([]);
 			});
 	}
 }
