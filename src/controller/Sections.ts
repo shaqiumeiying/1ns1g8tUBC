@@ -10,9 +10,18 @@ export default class Sections {
 	private readonly fail: number;
 	private readonly audit: number;
 
-	constructor(title: string, uuid: string, instructor: string,
-		dept: string, year: number, avg: number,
-		id: string, pass: number, fail: number, audit: number) {
+	constructor(
+		title: string,
+		uuid: string,
+		instructor: string,
+		dept: string,
+		year: number,
+		avg: number,
+		id: string,
+		pass: number,
+		fail: number,
+		audit: number
+	) {
 		this.title = title;
 		this.uuid = uuid;
 		this.instructor = instructor;
@@ -25,7 +34,7 @@ export default class Sections {
 		this.audit = audit;
 	}
 
-	public update(nameIt: any): any {
+	public static filtering(nameIt: any): any {
 		const section: any = {};
 		if ("id" in nameIt) {
 			section["uuid"] = nameIt["id"].toString();
@@ -58,5 +67,6 @@ export default class Sections {
 		if ("Audit" in nameIt) {
 			section["audit"] = nameIt["Audit"];
 		}
+		return section;
 	}
 }

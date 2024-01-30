@@ -16,14 +16,14 @@ export default class DatasetProcessor {
 		"year",
 	];
 
-	public async validateDataset(id: string, content: string, dataset: Map<string, any[]>): Promise<Sections[]> {
+	public async validateDataset(id: string, content: string): Promise<Sections[]> {
 		let zip = new JSZip();
+		const validSections: Sections[] = [];
 		return zip.loadAsync(content, {base64: true})
 			.then((rawFile: any) => {
 				const promises: Array<Promise<string>> = [];
 				// check if root folder is courses if true then loop for each files in the courses folder
-				// push into promises
-				// else reject
+				// push into promises, else, reject
 				// reference: https://stackoverflow.com/questions/54274686/how-to-wait-for-asynchronous-jszip-foreach-call-to-finish-before-running-next
 				try {
 					rawFile.folder("courses").forEach((relativePath: string, file: any) => {
@@ -38,7 +38,6 @@ export default class DatasetProcessor {
 				}
 				return Promise.all(promises);
 			}).then((files: any) => {
-				let numOfValidSections = 0;
 				for (let file of files) {
 					if (file === "" || file === null || file === undefined) {
 						continue;
@@ -46,21 +45,20 @@ export default class DatasetProcessor {
 					try {
 						const jsonResult = JSON.parse(files);
 						const sections = jsonResult["result"];
-					// const rank = jsonResult["rank"];
 						for (let section of sections) {
-						// determine if each entry is valid
-						// expand more
-							++numOfValidSections;
+							const filteredSection = Sections.filtering(section);
+							if(filteredSection.length === 10){
+								validSections.push(filteredSection);
+							}
 						}
-
-						if (numOfValidSections === 0) {
+						if (validSections.length === 0) {
 							return Promise.reject(new InsightError("No valid sections"));
 						}
 					} catch {
 						return Promise.reject(new InsightError("Invalid JSON"));
 					}
 				}
-				return Promise.resolve([]);
+				return Promise.resolve(validSections);// return the list of sections we filtered
 			});
 	}
 }

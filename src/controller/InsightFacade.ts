@@ -5,11 +5,12 @@ import {
 	InsightResult,
 	InsightError,
 	NotFoundError,
-	ResultTooLargeError
+	ResultTooLargeError,
 } from "./IInsightFacade";
 import DatasetProcessor from "./DatasetProcessor";
 import * as fs from "fs-extra";
 import JSZip from "jszip";
+import Sections from "./Sections";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -23,6 +24,7 @@ export default class InsightFacade implements IInsightFacade {
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
 		this.datasetProcessor = new DatasetProcessor();
+		// keep track of valid datasets
 		this.datasets = new Map<string, any[]>();
 	}
 
@@ -40,13 +42,15 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			// check if the first folder is courses
 			// relativePath check if there is zip
-
-			dp.validateDataset(id, content, this.datasets).then((result) => {
-				this.datasets.set(id, result);
-				return Promise.resolve(Array.from(this.datasets.keys()));
-			}).catch((err) => {
-				return Promise.reject(err);
-			});
+			dp.validateDataset(id, content)
+				.then((result) => {
+					this.datasets.set(id, result);
+					void this.writeFile(id, result); // Is this the correct way to write it?
+					return Promise.resolve(Array.from(this.datasets.keys()));
+				})
+				.catch((err) => {
+					return Promise.reject(err);
+				});
 		});
 	}
 
@@ -62,7 +66,7 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.reject(new InsightError());
 	}
 
-	public writeFile(id: string, content: string): Promise<any> {
+	public writeFile(id: string, content: Sections[]): Promise<any> {
 		let path = "data/" + id + ".json";
 		let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {
@@ -70,7 +74,7 @@ export default class InsightFacade implements IInsightFacade {
 				if (err) {
 					reject(err);
 				}
-				resolve("success");
+				resolve("Successfully wrote the file to the disk");
 			});
 		});
 	}
