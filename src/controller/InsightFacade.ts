@@ -32,17 +32,24 @@ export default class InsightFacade implements IInsightFacade {
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_") || id.includes(" ")) {
 				return Promise.reject(new InsightError("id is null or empty"));
 			}
-			if (id in this.findId()) {
-				return Promise.reject(new InsightError("id already exists"));
-			}
-			if (kind !== InsightDatasetKind.Sections) {
-				return Promise.reject(new InsightError("invalid kind"));
-			}
-			dp.validateDataset(id, content).then((result) => {
-				this.datasets.set(id, result);
-				return Promise.resolve(Array.from(this.datasets.keys()));
+			this.findId().then((existingIds) => {
+				if (existingIds.includes(id)) {
+					console.log("checked  id and it's already in the system");
+					return Promise.reject(new InsightError("id already exists"));
+				}
+
+				if (kind !== InsightDatasetKind.Sections) {
+					return Promise.reject(new InsightError("invalid kind"));
+				}
+
+				dp.validateDataset(id, content).then((result) => {
+					this.datasets.set(id, result);
+					resolve(Array.from(this.datasets.keys()));
+				}).catch((err) => {
+					return reject(err);
+				});
 			}).catch((err) => {
-				return Promise.reject(err);
+				return reject(err);
 			});
 		});
 	}

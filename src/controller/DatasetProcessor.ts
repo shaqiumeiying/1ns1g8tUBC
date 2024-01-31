@@ -12,13 +12,11 @@ export default class DatasetProcessor {
 			if (!coursesFolder) {
 				return Promise.reject(new InsightError("No courses folder"));
 			}
-			const files = await Promise.all(coursesFolder.file(/.+/)
+			const files = await Promise.all(coursesFolder.file(/.+/) // mention the usage to simon
 				.map(async (file) => file.async("text")));
 			const validSections: Sections[] = [];
 			for (const file of files) {
-				if (file === "" || file === null || file === undefined) {
-					continue;
-				} else {
+				if (file === "" || file === null || file === undefined) {/**/} else {
 					const jsonResult = JSON.parse(file);
 					const sections = jsonResult["result"];
 
@@ -46,7 +44,8 @@ export default class DatasetProcessor {
 	}
 
 	private isValidSection(section: any): boolean {
-		const requiredFields = ["id", "Course", "Professor", "Subject", "Year", "Avg", "Pass", "Fail", "Audit"];
+		const requiredFields = ["Title", "id", "Course", "Professor", "Subject",
+			"Year", "Avg", "Pass", "Fail", "Audit"];
 		return requiredFields.every((field) => field in section);
 	}
 }
