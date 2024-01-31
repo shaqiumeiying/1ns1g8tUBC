@@ -89,6 +89,11 @@ describe("InsightFacade", function () {
 			await clearDisk();
 		});
 
+		it("should resolve with a valid id", async function () {
+			const result = facade.addDataset("1", validOneSection, InsightDatasetKind.Sections);
+			expect(result).to.deep.equal(["1"]);
+		});
+
 		it("should reject with  an empty dataset id", async function () {
 			const result = facade.addDataset("", sections, InsightDatasetKind.Sections);
 

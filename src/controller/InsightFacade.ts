@@ -18,18 +18,16 @@ import Sections from "./Sections";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	private datasetProcessor: DatasetProcessor;
 	private datasets: Map<string, any[]>;
 
 	constructor() {
-		console.log("InsightFacadeImpl::init()");
-		this.datasetProcessor = new DatasetProcessor();
 		// keep track of valid datasets
 		this.datasets = new Map<string, any[]>();
 	}
 
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		return new Promise<string[]>(() => {
+
+		return new Promise<string[]>((resolve, reject) => {
 			const dp = new DatasetProcessor();
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_") || id.includes(" ")) {
 				return Promise.reject(new InsightError("id is null or empty"));
@@ -61,7 +59,7 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.reject(new InsightError());
 	}
 
-	public writeFile(id: string, content: Sections[]): Promise<any> {
+	public static writeFile(id: string, content: Sections[]): Promise<any> {
 		let path = "data/" + id + ".json";
 		let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {
@@ -101,4 +99,5 @@ export default class InsightFacade implements IInsightFacade {
 			});
 		});
 	}
+
 }
