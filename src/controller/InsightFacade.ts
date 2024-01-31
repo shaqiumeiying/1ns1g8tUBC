@@ -34,23 +34,18 @@ export default class InsightFacade implements IInsightFacade {
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_") || id.includes(" ")) {
 				return Promise.reject(new InsightError("id is null or empty"));
 			}
-			if (this.datasets.has(id)) {
+			if(id in this.findId()){
 				return Promise.reject(new InsightError("id already exists"));
 			}
 			if (kind !== InsightDatasetKind.Sections) {
 				return Promise.reject(new InsightError("invalid kind"));
 			}
-			// check if the first folder is courses
-			// relativePath check if there is zip
-			dp.validateDataset(id, content)
-				.then((result) => {
-					this.datasets.set(id, result);
-					void this.writeFile(id, result); // Is this the correct way to write it?
-					return Promise.resolve(Array.from(this.datasets.keys()));
-				})
-				.catch((err) => {
-					return Promise.reject(err);
-				});
+			dp.validateDataset(id, content).then((result) => {
+				this.datasets.set(id, result);
+				return Promise.resolve(Array.from(this.datasets.keys()));
+			}).catch((err) => {
+				return Promise.reject(err);
+			});
 		});
 	}
 
@@ -88,6 +83,20 @@ export default class InsightFacade implements IInsightFacade {
 				} else {
 					let JsonData = JSON.parse(data);
 					resolve(JsonData);
+				}
+			});
+		});
+	}
+
+	public findId(): Promise<string[]> {
+		let path = "data/";
+		return new Promise((resolve, reject) => {
+			fs.readdir(path, (err, files) => {
+				if (err) {
+					reject(err);
+				} else {
+					const fileNames = files.map((file) => file.slice(0, -5));
+					resolve(fileNames);
 				}
 			});
 		});
