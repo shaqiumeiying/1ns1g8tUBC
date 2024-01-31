@@ -32,7 +32,7 @@ export default class InsightFacade implements IInsightFacade {
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_") || id.includes(" ")) {
 				return Promise.reject(new InsightError("id is null or empty"));
 			}
-			if(id in this.findId()){
+			if (id in this.findId()) {
 				return Promise.reject(new InsightError("id already exists"));
 			}
 			if (kind !== InsightDatasetKind.Sections) {
@@ -60,7 +60,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public static writeFile(id: string, content: Sections[]): Promise<any> {
-		let path = "data/" + id + ".json";
+		let path = "processed/" + id + ".json";
 		let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {
 			fs.writeFile(path, data, (err) => {
@@ -73,7 +73,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public readFile(id: string): Promise<any> {
-		let path = "data/" + id + ".json";
+		let path = "processed/" + id + ".json";
 		return new Promise((resolve, reject) => {
 			fs.readFile(path, "utf8", (err, data: any) => {
 				if (err) {
@@ -87,7 +87,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public findId(): Promise<string[]> {
-		let path = "data/";
+		let path = "processed/";
 		return new Promise((resolve, reject) => {
 			fs.readdir(path, (err, files) => {
 				if (err) {

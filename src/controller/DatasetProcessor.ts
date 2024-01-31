@@ -17,6 +17,8 @@ export default class DatasetProcessor {
 			const validSections: Sections[] = [];
 			for (const file of files) {
 				if (file === "" || file === null || file === undefined) {
+					continue;
+				} else {
 					const jsonResult = JSON.parse(file);
 					const sections = jsonResult["result"];
 
