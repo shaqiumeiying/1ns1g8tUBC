@@ -12,8 +12,7 @@ export default class DatasetProcessor {
 			if (!coursesFolder) {
 				return Promise.reject(new InsightError("No courses folder"));
 			}
-			const files = await Promise.all(coursesFolder.file(/.+/)
-				.map(async (file) => file.async("text")));
+			const files = await Promise.all(coursesFolder.file(/.+/).map(async (file) => file.async("text")));
 			const validSections: Sections[] = [];
 			for (const file of files) {
 				if (file === "" || file === null || file === undefined) {
@@ -24,8 +23,15 @@ export default class DatasetProcessor {
 					for (const section of sections) {
 						if (this.isValidSection(section)) {
 							const validSection = new Sections(
-								section["Title"], section["id"], section["Professor"], section["Subject"],
-								section["Year"], section["Avg"], section["Course"], section["Pass"], section["Fail"],
+								section["Title"],
+								section["id"],
+								section["Professor"],
+								section["Subject"],
+								section["Year"],
+								section["Avg"],
+								section["Course"],
+								section["Pass"],
+								section["Fail"],
 								section["Audit"]
 							);
 							validSections.push(validSection.update(section));
@@ -48,4 +54,3 @@ export default class DatasetProcessor {
 		return requiredFields.every((field) => field in section);
 	}
 }
-
