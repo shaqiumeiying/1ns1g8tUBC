@@ -10,9 +10,18 @@ export default class Sections {
 	private readonly fail: number;
 	private readonly audit: number;
 
-	constructor(title: string, uuid: string, instructor: string,
-		dept: string, year: number, avg: number,
-		id: string, pass: number, fail: number, audit: number) {
+	constructor(
+		title: string,
+		uuid: string,
+		instructor: string,
+		dept: string,
+		year: number,
+		avg: number,
+		id: string,
+		pass: number,
+		fail: number,
+		audit: number
+	) {
 		this.title = title;
 		this.uuid = uuid;
 		this.instructor = instructor;

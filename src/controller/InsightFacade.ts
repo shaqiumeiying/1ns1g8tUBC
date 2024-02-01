@@ -60,7 +60,6 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-
 	public async removeDataset(id: string): Promise<string> {
 		return Promise.reject(new InsightError());
 	}
@@ -70,7 +69,18 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async listDatasets(): Promise<InsightDataset[]> {
-		return Promise.reject(new InsightError());
+		return this.checkIfDataHasBeenLoaded().then(() => {
+			let result: InsightDataset[] = [];
+			this.datasets.forEach((value, key) => {
+				let info: InsightDataset = {
+					id: key,
+					kind: InsightDatasetKind.Sections,
+					numRows: value.length,
+				};
+				result.push(info);
+			});
+			return Promise.resolve(result);
+		});
 	}
 
 	public static writeFile(id: string, content: Sections[]): Promise<any> {
@@ -86,45 +96,19 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	public readFile(id: string): Promise<any> {
-		let path = "processed/" + id + ".json";
-		return new Promise((resolve, reject) => {
-			fs.readFile(path, "utf8", (err, data: any) => {
-				if (err) {
-					reject(err);
-				} else {
-					let JsonData = JSON.parse(data);
-					resolve(JsonData);
-				}
-			});
-		});
-	}
-
-	public async findId(): Promise<string[]> {
-		let path = "processed/";
-		return new Promise((resolve, reject) => {
-			fs.readdir(path, (err, files) => {
-				if (err) {
-					reject(err);
-				} else {
-					const fileNames = files.map((file) => file.slice(0, -5));
-					resolve(fileNames);
-				}
-			});
-		});
-	}
-
 	public async loadData(): Promise<any> {
 		let path = "processed/";
 		try {
 			const files = await fs.promises.readdir(path);
-			await Promise.all(files.map(async (file) => {
-				const filePath = path + file;
-				const data = await fs.promises.readFile(filePath, "utf8");
-				const jsonData = JSON.parse(data);
-				const id = file.slice(0, -5);
-				this.datasets.set(id, jsonData);
-			}));
+			await Promise.all(
+				files.map(async (file) => {
+					const filePath = path + file;
+					const data = await fs.promises.readFile(filePath, "utf8");
+					const jsonData = JSON.parse(data);
+					const id = file.slice(0, -5);
+					this.datasets.set(id, jsonData);
+				})
+			);
 			return this.datasets;
 		} catch (error) {
 			throw new InsightError("Failed to read the processed folder or file");
