@@ -42,7 +42,6 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			dp.validateDataset(id, content).then((result) => {
 				this.datasets.set(id, result);
-				console.log(this.datasets.values());
 				let list: string[] = Array.from(this.datasets.keys());
 				resolve(list);
 			}).catch((err) => {
