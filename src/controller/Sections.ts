@@ -61,5 +61,6 @@ export default class Sections {
 		if ("Audit" in nameIt) {
 			section["audit"] = nameIt["Audit"];
 		}
+		return section;
 	}
 }

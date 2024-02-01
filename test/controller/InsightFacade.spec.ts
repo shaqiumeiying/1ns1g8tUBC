@@ -88,9 +88,23 @@ describe("InsightFacade", function () {
 			// This runs after each test, which should make each test independent of the previous one
 			await clearDisk();
 		});
+		it("should reject with duplicate id -- light version", async function () {
+			try {
+				await facade.addDataset("validCourses", validCourses, InsightDatasetKind.Sections);
+				await facade.addDataset("validCourses", validCourses, InsightDatasetKind.Sections);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
 		it("should resolve with a valid id", async function () {
-			const result = facade.addDataset("1", validOneSection, InsightDatasetKind.Sections);
-			expect(result).to.deep.equal(["1"]);
+			try {
+				const result = await facade.addDataset("1", validOneSection, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["1"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
 		});
 
 		it("should reject with  an empty dataset id", async function () {
@@ -182,16 +196,16 @@ describe("InsightFacade", function () {
 			}
 		});
 
-		it("should able to add an courses folder inside a folder", async function () {
+		it("should reject to add an courses folder inside a folder", async function () {
 			try {
 				const result = await facade.addDataset(
 					"invalidFolderInFolder",
 					invalidFoldrInFolder,
 					InsightDatasetKind.Sections
 				);
-				expect(result).to.deep.equal(["invalidFolderInFolder"]);
+				expect.fail("Should have rejected");
 			} catch (err) {
-				expect.fail("Should have fulfilled");
+				expect(err).to.be.instanceOf(InsightError);
 			}
 		});
 

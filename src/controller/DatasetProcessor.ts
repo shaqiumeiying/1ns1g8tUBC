@@ -21,7 +21,6 @@ export default class DatasetProcessor {
 				} else {
 					const jsonResult = JSON.parse(file);
 					const sections = jsonResult["result"];
-
 					for (const section of sections) {
 						if (this.isValidSection(section)) {
 							const validSection = new Sections(
@@ -29,8 +28,7 @@ export default class DatasetProcessor {
 								section["Year"], section["Avg"], section["Course"], section["Pass"], section["Fail"],
 								section["Audit"]
 							);
-							validSection.update(section);
-							validSections.push(validSection);
+							validSections.push(validSection.update(section));
 						}
 					}
 				}
@@ -41,7 +39,7 @@ export default class DatasetProcessor {
 			await InsightFacade.writeFile(id, validSections);
 			return Promise.resolve(validSections);
 		} catch (err) {
-			return Promise.reject(err);
+			return Promise.reject(new InsightError("Error processing dataset"));
 		}
 	}
 

@@ -26,23 +26,27 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-
 		return new Promise<string[]>((resolve, reject) => {
 			const dp = new DatasetProcessor();
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_") || id.includes(" ")) {
-				return Promise.reject(new InsightError("id is null or empty"));
+				reject(new InsightError("id is null or empty"));
+				return;
 			}
 			if (id in this.findId()) {
-				return Promise.reject(new InsightError("id already exists"));
+				reject(new InsightError("id already exists"));
+				return;
 			}
 			if (kind !== InsightDatasetKind.Sections) {
-				return Promise.reject(new InsightError("invalid kind"));
+				reject(new InsightError("invalid kind"));
+				return;
 			}
 			dp.validateDataset(id, content).then((result) => {
 				this.datasets.set(id, result);
-				return Promise.resolve(Array.from(this.datasets.keys()));
+				console.log(this.datasets.values());
+				let list: string[] = Array.from(this.datasets.keys());
+				resolve(list);
 			}).catch((err) => {
-				return Promise.reject(err);
+				reject(new InsightError(err));
 			});
 		});
 	}
