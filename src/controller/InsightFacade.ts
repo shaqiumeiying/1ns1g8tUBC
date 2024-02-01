@@ -19,36 +19,47 @@ import Sections from "./Sections";
  */
 export default class InsightFacade implements IInsightFacade {
 	private datasets: Map<string, any[]>;
+	private isDataBeenLoadedIndicator: boolean;
 
 	constructor() {
 		// keep track of valid datasets
 		this.datasets = new Map<string, any[]>();
+		this.isDataBeenLoadedIndicator = false;
+	}
+
+	private async checkIfDataHasBeenLoaded() {
+		if (!this.isDataBeenLoadedIndicator) {
+			try {
+				await this.loadData();
+				this.isDataBeenLoadedIndicator = true;
+			} catch (error) {
+				return new InsightError("Failed to load data");
+			}
+		} else {
+			return;
+		}
 	}
 
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		return new Promise<string[]>((resolve, reject) => {
+		return this.checkIfDataHasBeenLoaded().then(() => {
 			const dp = new DatasetProcessor();
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_") || id.includes(" ")) {
-				reject(new InsightError("id is null or empty"));
-				return;
+				return Promise.reject(new InsightError("id is null or empty"));
 			}
-			if (id in this.findId()) {
-				reject(new InsightError("id already exists"));
-				return;
+			if (this.datasets.has(id)) {
+				return Promise.reject(new InsightError("id already exists"));
 			}
 			if (kind !== InsightDatasetKind.Sections) {
-				reject(new InsightError("invalid kind"));
-				return;
+				return Promise.reject(new InsightError("invalid kind"));
 			}
-			dp.validateDataset(id, content).then((result) => {
+			return dp.validateDataset(id, content).then((result) => {
 				this.datasets.set(id, result);
 				let list: string[] = Array.from(this.datasets.keys());
-				resolve(list);
-			}).catch((err) => {
-				reject(new InsightError(err));
+				return Promise.resolve(list);
 			});
 		});
 	}
+
 
 	public async removeDataset(id: string): Promise<string> {
 		return Promise.reject(new InsightError());
@@ -89,7 +100,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	public findId(): Promise<string[]> {
+	public async findId(): Promise<string[]> {
 		let path = "processed/";
 		return new Promise((resolve, reject) => {
 			fs.readdir(path, (err, files) => {
@@ -103,4 +114,20 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
+	public async loadData(): Promise<any> {
+		let path = "processed/";
+		try {
+			const files = await fs.promises.readdir(path);
+			await Promise.all(files.map(async (file) => {
+				const filePath = path + file;
+				const data = await fs.promises.readFile(filePath, "utf8");
+				const jsonData = JSON.parse(data);
+				const id = file.slice(0, -5);
+				this.datasets.set(id, jsonData);
+			}));
+			return this.datasets;
+		} catch (error) {
+			throw new InsightError("Failed to read the processed folder or file");
+		}
+	}
 }
