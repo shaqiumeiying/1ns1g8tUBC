@@ -43,7 +43,7 @@ export default class InsightFacade implements IInsightFacade {
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		return this.checkIfDataHasBeenLoaded().then(() => {
 			const dp = new DatasetProcessor();
-			if (id === null || id === "" || id.trim().length === 0 || id.includes("_") || id.includes(" ")) {
+			if (id === null || id === "" || id.trim().length === 0 || id.includes("_")) {
 				return Promise.reject(new InsightError("id is null or empty"));
 			}
 			if (this.datasets.has(id)) {
@@ -84,7 +84,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public static writeFile(id: string, content: Sections[]): Promise<any> {
-		let path = "processed/" + id + ".json";
+		let path = "data/" + id + ".json";
 		let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {
 			fs.writeFile(path, data, (err) => {
@@ -97,7 +97,8 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async loadData(): Promise<any> {
-		let path = "processed/";
+		let path = "data/";
+		await fs.ensureDir("data");
 		try {
 			const files = await fs.promises.readdir(path);
 			await Promise.all(

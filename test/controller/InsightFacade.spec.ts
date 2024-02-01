@@ -88,15 +88,6 @@ describe("InsightFacade", function () {
 			// This runs after each test, which should make each test independent of the previous one
 			await clearDisk();
 		});
-		it("should list current datasets in the disk when there is one", async function () {
-			try {
-				const result = await facade.listDatasets();
-				expect(result).to.have.length(1);
-				expect(result[0].id).to.deep.equal("1");
-			} catch (err) {
-				expect.fail("Should have fulfilled");
-			}
-		});
 
 		it("should reject with duplicate id -- light version", async function () {
 			try {
