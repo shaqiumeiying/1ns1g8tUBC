@@ -39,7 +39,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 	}
 
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		return this.checkIfDataHasBeenLoaded().then(() => {
 			const dp = new DatasetProcessor();
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_")) {
@@ -59,8 +59,8 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	public removeDataset(id: string): Promise<string> {
-		return this.checkIfDataHasBeenLoaded().then(() => {
+	public async removeDataset(id: string): Promise<string> {
+		return this.checkIfDataHasBeenLoaded().then(async () => {
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_")) {
 				return Promise.reject(new InsightError("id is null or empty"));
 			}
@@ -68,14 +68,13 @@ export default class InsightFacade implements IInsightFacade {
 				return Promise.reject(new NotFoundError("id does not exist"));
 			}
 			let path = "data/" + id + ".json";
-			fs.unlink(path, (err) => {
-				if (err) {
-					return Promise.reject(new InsightError("Failed to remove dataset"));
-				}
-			});
+			try {
+				await fs.promises.unlink(path);
+			} catch {
+				return Promise.reject(new InsightError("Failed to remove dataset: "));
+			}
 			this.datasets.delete(id);
 			return Promise.resolve(id);
-			// why cant push??
 		});
 	}
 
@@ -83,7 +82,7 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.reject(new InsightError());
 	}
 
-	public listDatasets(): Promise<InsightDataset[]> {
+	public async listDatasets(): Promise<InsightDataset[]> {
 		return this.checkIfDataHasBeenLoaded().then(() => {
 			let result: InsightDataset[] = [];
 			this.datasets.forEach((value, key) => {
