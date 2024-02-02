@@ -75,6 +75,7 @@ export default class InsightFacade implements IInsightFacade {
 			});
 			this.datasets.delete(id);
 			return Promise.resolve(id);
+			// why cant push??
 		});
 	}
 
