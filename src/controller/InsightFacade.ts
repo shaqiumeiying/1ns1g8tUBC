@@ -9,7 +9,6 @@ import {
 } from "./IInsightFacade";
 import DatasetProcessor from "./DatasetProcessor";
 import * as fs from "fs-extra";
-import JSZip from "jszip";
 import Sections from "./Sections";
 
 /**
@@ -40,7 +39,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 	}
 
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		return this.checkIfDataHasBeenLoaded().then(() => {
 			const dp = new DatasetProcessor();
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_")) {
@@ -61,7 +60,22 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async removeDataset(id: string): Promise<string> {
-		return Promise.reject(new InsightError());
+		return this.checkIfDataHasBeenLoaded().then(async () => {
+			if (id === null || id === "" || id.trim().length === 0 || id.includes("_")) {
+				return Promise.reject(new InsightError("id is null or empty"));
+			}
+			if (!this.datasets.has(id)) {
+				return Promise.reject(new NotFoundError("id does not exist"));
+			}
+			let path = "data/" + id + ".json";
+			try {
+				await fs.promises.unlink(path);
+			} catch {
+				return Promise.reject(new InsightError("Failed to remove dataset: "));
+			}
+			this.datasets.delete(id);
+			return Promise.resolve(id);
+		});
 	}
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
