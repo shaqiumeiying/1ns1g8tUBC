@@ -48,8 +48,18 @@ export default class DatasetProcessor {
 	}
 
 	private isValidSection(section: any): boolean {
-		const requiredFields = ["Title", "id", "Course", "Professor", "Subject",
-			"Year", "Avg", "Pass", "Fail", "Audit"];
+		const requiredFields = [
+			"Title",
+			"id",
+			"Course",
+			"Professor",
+			"Subject",
+			"Year",
+			"Avg",
+			"Pass",
+			"Fail",
+			"Audit",
+		];
 		return requiredFields.every((field) => field in section);
 	}
 	//

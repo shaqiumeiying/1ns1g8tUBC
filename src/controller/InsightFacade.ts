@@ -79,7 +79,16 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
-		return Promise.reject(new InsightError());
+		try {
+			// todo: this is a dummy parseQuery for testing purposes
+			let parsedQuery = JSON.parse(JSON.stringify(query));
+			let q = new parsedQuery(parsedQuery);
+			// todo: this is a dummy performQuery result for testing purposes
+			let result = q.execute();
+			return Promise.resolve(result);
+		} catch (error) {
+			return Promise.reject(new InsightError("Invalid query"));
+		}
 	}
 
 	public async listDatasets(): Promise<InsightDataset[]> {
