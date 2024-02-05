@@ -88,6 +88,14 @@ describe("InsightFacade", function () {
 			// This runs after each test, which should make each test independent of the previous one
 			await clearDisk();
 		});
+		it ("should be able to load top5courses", async function () {
+			try {
+				const result = await facade.addDataset("top5courses", top5courses, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["top5courses"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
 
 		it("should reject with duplicate id -- light version", async function () {
 			try {
