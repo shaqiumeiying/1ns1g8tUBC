@@ -848,6 +848,28 @@ describe("InsightFacade", function () {
 					expect.fail(`Should not have thrown: ${err}`);
 				}
 			});
+			it("should return invalid for empty and key", async function () {
+				const query = {
+					WHERE: {
+						AND: [
+							{}
+						]
+					},
+					OPTIONS: {
+						COLUMNS: [
+							"sections_avg"
+						],
+						ORDER: "sections_avg"
+					}
+				};
+
+				try {
+					const result = await facade.performQuery(query);
+					expect.fail("Should have rejected");
+				} catch (err) {
+					expect(err).to.be.instanceOf(InsightError);
+				}
+			});
 		});
 
 		describe("valid queries", function () {
