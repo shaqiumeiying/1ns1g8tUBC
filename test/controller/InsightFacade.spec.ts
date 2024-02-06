@@ -825,6 +825,31 @@ describe("InsightFacade", function () {
 			await clearDisk();
 		});
 
+		describe("query test for debug", function () {
+			it("should return correct results for simple GT query", async function () {
+				const query = {
+					WHERE: {
+						GT: {
+							sections_avg: 97
+						}
+					},
+					OPTIONS: {
+						COLUMNS: [
+							"sections_dept",
+							"sections_avg"
+						],
+						ORDER: "sections_avg"
+					}
+				};
+
+				try {
+					const result = await facade.performQuery(query);
+				} catch (err) {
+					expect.fail(`Should not have thrown: ${err}`);
+				}
+			});
+		});
+
 		describe("valid queries", function () {
 			let validQueries: ITestQuery[];
 			try {
