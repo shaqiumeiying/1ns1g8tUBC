@@ -88,6 +88,14 @@ describe("InsightFacade", function () {
 			// This runs after each test, which should make each test independent of the previous one
 			await clearDisk();
 		});
+		it ("should be able to load top5courses", async function () {
+			try {
+				const result = await facade.addDataset("top5courses", top5courses, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["top5courses"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
 
 		it("should reject with duplicate id -- light version", async function () {
 			try {
@@ -815,6 +823,53 @@ describe("InsightFacade", function () {
 
 		after(async function () {
 			await clearDisk();
+		});
+
+		describe("query test for debug", function () {
+			it("should return correct results for simple GT query", async function () {
+				const query = {
+					WHERE: {
+						GT: {
+							sections_avg: 97
+						}
+					},
+					OPTIONS: {
+						COLUMNS: [
+							"sections_dept",
+							"sections_avg"
+						],
+						ORDER: "sections_avg"
+					}
+				};
+
+				try {
+					const result = await facade.performQuery(query);
+				} catch (err) {
+					expect.fail(`Should not have thrown: ${err}`);
+				}
+			});
+			it("should return invalid for empty and key", async function () {
+				const query = {
+					WHERE: {
+						AND: [
+							{}
+						]
+					},
+					OPTIONS: {
+						COLUMNS: [
+							"sections_avg"
+						],
+						ORDER: "sections_avg"
+					}
+				};
+
+				try {
+					const result = await facade.performQuery(query);
+					expect.fail("Should have rejected");
+				} catch (err) {
+					expect(err).to.be.instanceOf(InsightError);
+				}
+			});
 		});
 
 		describe("valid queries", function () {

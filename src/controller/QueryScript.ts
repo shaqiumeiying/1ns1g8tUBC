@@ -1,3 +1,5 @@
+import MComparison from "./MComparison";
+
 export default class QueryScript {
 	private id: string;
 	private where: any;
@@ -39,8 +41,40 @@ export default class QueryScript {
 		return true;
 	}
 
-	private validateWhere(where: any): boolean {
-		return true;
+	public validateWhere(where: any): boolean | undefined {
+		if (Object.keys(where).length === 0) {
+			return false;
+		}
+		if ("AND" in where || "OR" in where) {
+			return this.validateLogicComparison(where);
+		}
+		if ("LT" in where || "GT" in where || "EQ" in where) {
+			return this.validateMComparison(where);
+		}
+		if ("IS" in where) {
+			return this.validateSComparison(where);
+		}
+
+	}
+
+	private validateLogicComparison(logic: any): boolean {
+		return ("AND" in logic || "OR" in logic) &&
+			Array.isArray(logic["AND"] || logic["OR"]) &&
+			logic["AND"].every((subFilter: any) => this.validateWhere(subFilter));
+	}
+
+	private validateMComparison(mComp: any): boolean {
+		const mKeyPattern = /^"[^_]+_(avg|pass|fail|audit|year)"$/;
+		const mKey = mComp.getMKey();
+		const mNumber = mComp.getNumber();
+		return mKey in mKeyPattern && typeof mKey === "string" && typeof mNumber === "number";
+	}
+
+	private validateSComparison(sComp: any) {
+		const sKeyPattern = /^"[^_]+_(dept|id|instructor|title|uuid)"$/;
+		const sKey = sComp.getSKey();
+		const sInputString = sComp.getInputString();
+		return sKey in sKeyPattern && typeof sInputString === "string";
 	}
 
 	private validateOptions(options: any): boolean {

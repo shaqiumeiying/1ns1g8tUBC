@@ -1,7 +1,7 @@
 import QueryScript from "./QueryScript";
 import Sections from "./Sections";
 
-class QueryExecutor {
+export default class QueryExecutor {
 	private query: any;
 	private datasets: Map<string, any[]>;
 

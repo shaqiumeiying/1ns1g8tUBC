@@ -10,6 +10,8 @@ import {
 import DatasetProcessor from "./DatasetProcessor";
 import * as fs from "fs-extra";
 import Sections from "./Sections";
+import QueryScript from "./QueryScript";
+import QueryExecutor from "./QueryExecutor";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -80,14 +82,22 @@ export default class InsightFacade implements IInsightFacade {
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
 		try {
-			// todo: this is a dummy parseQuery for testing purposes
 			let parsedQuery = JSON.parse(JSON.stringify(query));
-			let q = new parsedQuery(parsedQuery);
-			// todo: this is a dummy performQuery result for testing purposes
-			let result = q.execute();
-			return Promise.resolve(result);
+			let qs = new QueryScript(parsedQuery);  // Instantiate the QueryScript class
+			let qe = new QueryExecutor(parsedQuery,this.datasets);
+			if (qs.ValidateQuery()) {
+				let isWhereValid = qs.validateWhere(qs.getWhere());
+				if (isWhereValid) {
+					let result = qe.executeQuery();
+					return Promise.resolve([]); // stub return
+				} else {
+					return Promise.reject(new InsightError("Invalid 'WHERE' clause in the query"));
+				}
+			} else {
+				return Promise.reject(new InsightError("Invalid query"));
+			}
 		} catch (error) {
-			return Promise.reject(new InsightError("Invalid query"));
+			return Promise.reject(new InsightError("Invalid query format"));
 		}
 	}
 
