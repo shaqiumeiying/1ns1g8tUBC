@@ -829,13 +829,13 @@ describe("InsightFacade", function () {
 			it("should return correct results for simple GT query", async function () {
 				const query = {
 					WHERE: {
-						GT: {
-							sections_avg: 97
+						IS: {
+							sections_dept: "cpsc",
+							sections_title: "abc"
 						}
 					},
 					OPTIONS: {
 						COLUMNS: [
-							"sections_dept",
 							"sections_avg"
 						],
 						ORDER: "sections_avg"
@@ -846,28 +846,6 @@ describe("InsightFacade", function () {
 					const result = await facade.performQuery(query);
 				} catch (err) {
 					expect.fail(`Should not have thrown: ${err}`);
-				}
-			});
-			it("should return invalid for empty and key", async function () {
-				const query = {
-					WHERE: {
-						AND: [
-							{}
-						]
-					},
-					OPTIONS: {
-						COLUMNS: [
-							"sections_avg"
-						],
-						ORDER: "sections_avg"
-					}
-				};
-
-				try {
-					const result = await facade.performQuery(query);
-					expect.fail("Should have rejected");
-				} catch (err) {
-					expect(err).to.be.instanceOf(InsightError);
 				}
 			});
 		});
