@@ -83,21 +83,16 @@ export default class InsightFacade implements IInsightFacade {
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
 		try {
 			let parsedQuery = JSON.parse(JSON.stringify(query));
-			let qs = new QueryScript(parsedQuery);  // Instantiate the QueryScript class
-			let qe = new QueryExecutor(parsedQuery,this.datasets);
-			if (qs.ValidateQuery()) {
-				let isWhereValid = qs.validateWhere(qs.getWhere());
-				if (isWhereValid) {
-					let result = qe.executeQuery();
-					return Promise.resolve([]); // stub return
-				} else {
-					return Promise.reject(new InsightError("Invalid 'WHERE' clause in the query"));
-				}
-			} else {
-				return Promise.reject(new InsightError("Invalid query"));
-			}
+			let result = new QueryExecutor(parsedQuery, this.datasets);
+			let r = await result.executeQuery();
+			// Convert Sections objects to InsightResult objects
+			let convertedResult: InsightResult[] = r.map((section: Sections) => {
+				let insightResult: InsightResult = {};
+				return insightResult;
+			});
+			return Promise.resolve(convertedResult);
 		} catch (error) {
-			return Promise.reject(new InsightError("Invalid query format"));
+			return Promise.reject(new InsightError("Invalid query"));
 		}
 	}
 
