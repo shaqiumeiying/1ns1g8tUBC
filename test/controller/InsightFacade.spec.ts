@@ -829,16 +829,31 @@ describe("InsightFacade", function () {
 			it("should return correct results for simple GT query", async function () {
 				const query = {
 					WHERE: {
-						IS: {
-							sections_dept: "cpsc",
-							sections_title: "abc"
-						}
+						AND: [
+							{
+								IS: {
+									ubc_dept: "cpsc"
+								}
+							},
+							{
+								LT: {
+									sections_avg: 64.5
+								}
+							},
+							{
+								IS: {
+									sections_uuid: "46774"
+								}
+							}
+						]
 					},
 					OPTIONS: {
 						COLUMNS: [
+							"sections_dept",
+							"sections_title",
+							"sections_uuid",
 							"sections_avg"
-						],
-						ORDER: "sections_avg"
+						]
 					}
 				};
 

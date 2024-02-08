@@ -25,6 +25,9 @@ export default class QueryScript {
 							ids.push(id);
 						}
 					}
+					if (typeof item === "object" && item !== null) {
+						ids = ids.concat(this.parseID(item, existingIds.concat(ids)));
+					}
 				}
 			} else if (typeof query[key] === "object" && query[key] !== null) {
 				// If the value is an object, recursively search it for ids
@@ -149,6 +152,15 @@ export default class QueryScript {
 		const field = object.split("_")[1];
 		const string = key[object];
 		if (!this.isValidSField(field) || typeof string !== "string") {
+			return false;
+		}
+		const regex = /^(\*?)[a-zA-Z0-9]+(\*?)$/;
+		if (!regex.test(string)) {
+			return false;
+		}
+		// Check if the string value contains at most two '*'
+		const asteriskCount = (string.match(/\*/g) || []).length;
+		if (asteriskCount > 2) {
 			return false;
 		}
 
