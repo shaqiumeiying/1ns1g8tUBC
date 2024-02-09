@@ -66,7 +66,7 @@ export default class QueryScript {
 		if (typeof this.where !== "object" || typeof this.options !== "object") {
 			return false;
 		} // If WHERE or OPTIONS is not an object, return false
-		if (Object.keys(this.where).length === 0 || Object.keys(this.options).length === 0) {
+		if (Object.keys(this.options).length === 0) {
 			return false;
 		} // If WHERE or OPTIONS is empty, return false
 		if (Object.keys(this.where).length > 1 || Object.keys(this.options).length > 2) {
@@ -83,7 +83,7 @@ export default class QueryScript {
 
 	public validateWhere(where: any): boolean {
 		if (Object.keys(where).length === 0) {
-			return false;
+			return true;
 		}
 		const key = Object.keys(where)[0];
 		if (key === "AND" || key === "OR") {
@@ -98,14 +98,17 @@ export default class QueryScript {
 				}
 			}
 		} else if (key === "NOT") {
-			if (typeof where[key] !== "object" || !this.validateWhere(where[key])) {
+			if (typeof where[key] !== "object" || !this.validateWhere(where[key]) ||
+				Object.keys(where[key]).length === 0) {
+				console.log(where[key].length);
 				return false;
 			}
 		} else if (key === "LT" || key === "GT" || key === "EQ") {
 			return this.validateMComparison(where);
 		} else if (key === "IS") {
 			return this.validateSComparison(where);
-		} else { // other keys are invalid
+		} else {
+			// other keys are invalid
 			return false;
 		}
 		return true;
@@ -176,10 +179,12 @@ export default class QueryScript {
 		if (typeof options !== "object" || !Object.keys(options).includes("COLUMNS")) {
 			return false;
 		}
-		if (!this.validateColumns(options["COLUMNS"])) {
+		// find columns for checking order
+		const columns = options["COLUMNS"];
+		if (!this.validateColumns(columns)) {
 			return false;
 		}
-		if (Object.keys(options).includes("ORDER") && !this.validateOrder(options["ORDER"])) {
+		if (Object.keys(options).includes("ORDER") && !this.validateOrder(options["ORDER"], columns)) {
 			return false;
 		}
 		return true;
@@ -209,25 +214,86 @@ export default class QueryScript {
 		return true;
 	}
 
-	private isValidField(field: string): boolean {
-		const validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
-		return validFields.includes(field);
-	}
-
-	private validateOrder(order: any): boolean {
+	private validateOrder(order: any, columns: string[]): boolean {
 		// Check if order is a string
 		if (typeof order !== "string") {
 			return false;
 		}
+
 		let parts = order.split("_");
 		if (parts.length !== 2) {
 			return false;
 		}
+
 		let id = parts[0];
 		let field = parts[1];
 		if (!this.isValidField(field)) {
 			return false;
 		}
+
+		// Check if the field is in the COLUMNS array
+		if (!columns.includes(order)) {
+			return false;
+		}
+
 		return true;
 	}
+
+	// public validateOptions(options: any): boolean {
+	// 	if (typeof options !== "object" || !Object.keys(options).includes("COLUMNS")) {
+	// 		return false;
+	// 	}
+	// 	if (!this.validateColumns(options["COLUMNS"])) {
+	// 		return false;
+	// 	}
+	// 	if (Object.keys(options).includes("ORDER") && !this.validateOrder(options["ORDER"])) {
+	// 		return false;
+	// 	}
+	// 	return true;
+	// }
+
+	// private validateColumns(columns: any): boolean {
+	// 	// Check if columns is an array of strings
+	// 	if (columns.length === 0 || !Array.isArray(columns) || !columns.every((item) => typeof item === "string")) {
+	// 		return false;
+	// 	}
+	//
+	// 	// Check each column
+	// 	for (let column of columns) {
+	// 		let parts = column.split("_");
+	// 		if (parts.length !== 2) {
+	// 			return false;
+	// 		}
+	//
+	// 		let id = parts[0];
+	// 		let field = parts[1];
+	// 		if (!this.isValidField(field)) {
+	// 			return false;
+	// 		}
+	// 	}
+	//
+	// 	return true;
+	// }
+
+	private isValidField(field: string): boolean {
+		const validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
+		return validFields.includes(field);
+	}
+
+	// private validateOrder(order: any): boolean {
+	// 	// Check if order is a string
+	// 	if (typeof order !== "string") {
+	// 		return false;
+	// 	}
+	// 	let parts = order.split("_");
+	// 	if (parts.length !== 2) {
+	// 		return false;
+	// 	}
+	// 	let id = parts[0];
+	// 	let field = parts[1];
+	// 	if (!this.isValidField(field)) {
+	// 		return false;
+	// 	}
+	// 	return true;
+	// }
 }

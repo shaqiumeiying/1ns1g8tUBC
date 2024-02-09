@@ -15,7 +15,9 @@ export default class DatasetProcessor {
 			const files = await Promise.all(coursesFolder.file(/.+/).map(async (file) => file.async("text")));
 			const validSections: Sections[] = [];
 			for (const file of files) {
-				if (file === "" || file === null || file === undefined) {/**/} else {
+				if (file === "" || file === null || file === undefined) {
+					/**/
+				} else {
 					const jsonResult = JSON.parse(file);
 					const sections = jsonResult["result"];
 					for (const section of sections) {
