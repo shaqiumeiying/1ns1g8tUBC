@@ -1,3 +1,4 @@
+import {InsightResult} from "./IInsightFacade";
 export default class Sections {
 	private readonly title: string;
 	private readonly uuid: string;
@@ -71,5 +72,45 @@ export default class Sections {
 			section["audit"] = nameIt["Audit"];
 		}
 		return section;
+	}
+
+	public getTitle(): string {
+		return this.title;
+	}
+
+	public getUuid(): string {
+		return this.uuid;
+	}
+
+	public getInstructor(): string {
+		return this.instructor;
+	}
+
+	public getDept(): string {
+		return this.dept;
+	}
+
+	public getYear(): number {
+		return this.year;
+	}
+
+	public getAvg(): number {
+		return this.avg;
+	}
+
+	public getId(): string {
+		return this.id;
+	}
+
+	public getPass(): number {
+		return this.pass;
+	}
+
+	public getFail(): number {
+		return this.fail;
+	}
+
+	public getAudit(): number {
+		return this.audit;
 	}
 }

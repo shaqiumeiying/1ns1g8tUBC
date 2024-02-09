@@ -88,7 +88,7 @@ describe("InsightFacade", function () {
 			// This runs after each test, which should make each test independent of the previous one
 			await clearDisk();
 		});
-		it ("should be able to load top5courses", async function () {
+		it("should be able to load top5courses", async function () {
 			try {
 				const result = await facade.addDataset("top5courses", top5courses, InsightDatasetKind.Sections);
 				expect(result).to.deep.equal(["top5courses"]);
@@ -827,23 +827,33 @@ describe("InsightFacade", function () {
 
 		describe("query test for debug", function () {
 			it("should return correct results for simple GT query", async function () {
+				let result;
 				const query = {
 					WHERE: {
-						IS: {
-							sections_dept: "cpsc",
-							sections_title: "abc"
-						}
+						AND: [
+							{
+								EQ: {
+									sections_avg: 90
+								}
+							},
+							{
+								IS: {
+									sections_dept: "c*"
+								}
+							}
+						]
 					},
 					OPTIONS: {
 						COLUMNS: [
+							"sections_dept",
 							"sections_avg"
 						],
 						ORDER: "sections_avg"
 					}
 				};
-
 				try {
-					const result = await facade.performQuery(query);
+					const result1 = await facade.performQuery(query);
+					console.log(result1);
 				} catch (err) {
 					expect.fail(`Should not have thrown: ${err}`);
 				}

@@ -83,14 +83,24 @@ export default class InsightFacade implements IInsightFacade {
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
 		try {
 			let parsedQuery = JSON.parse(JSON.stringify(query));
+			const queryScript = new QueryScript(query);
+			if (!queryScript.ValidateQuery()) {
+				return Promise.reject(new InsightError("Invalid query"));
+			}
+			const where = queryScript.getWhere();
+			const options = queryScript.getOptions();
+			const ids = queryScript.getID();
+			const id = ids[0];
+			if (ids.length !== 1 || !this.datasets.has(id)) {
+				return Promise.reject(new InsightError("Invalid dataset"));
+			}
 			let result = new QueryExecutor(parsedQuery, this.datasets);
-			let r = await result.executeQuery();
+			let r = await result.executeQuery(id, where, options);
 			// Convert Sections objects to InsightResult objects
-			let convertedResult: InsightResult[] = r.map((section: Sections) => {
-				let insightResult: InsightResult = {};
-				return insightResult;
-			});
-			return Promise.resolve(convertedResult);
+			if (r.length >= 5000) {
+				return Promise.reject(new ResultTooLargeError());
+			}
+			return Promise.resolve(r);
 		} catch (error) {
 			return Promise.reject(new InsightError("Invalid query"));
 		}
