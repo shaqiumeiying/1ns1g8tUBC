@@ -19,7 +19,7 @@ export default class QueryExecutor {
 		this.datasets = datasets;
 	}
 
-	public executeQuery(): Promise<InsightResult[]> {
+	public executeQuery(IdfromParse: string, WhereFromMain: any, OptionsFromMain: any): Promise<InsightResult[]> {
 		if (!Object.keys(this.query).includes("OPTIONS") || !Object.keys(this.query).includes("WHERE")) {
 			return Promise.reject(new InsightError("no options or where"));
 		}
@@ -31,25 +31,16 @@ export default class QueryExecutor {
 		) {
 			return Promise.reject(new InsightError("Invalid query"));
 		}
-		const queryScript = new QueryScript(this.query);
-		const ids = queryScript.getID();
-		if (ids.length !== 1 || !this.datasets.has(ids[0])) {
-			return Promise.reject(new InsightError("Invalid dataset"));
-		}
-		if (!queryScript.ValidateQuery()) {
-			return Promise.reject(new InsightError("Invalid query"));
-		}
-		const id = ids[0];
-		const where = queryScript.getWhere();
-		const options = queryScript.getOptions();
+		const id = IdfromParse;
+		const where = WhereFromMain;
+		const options = OptionsFromMain;
 		const data = this.datasets.get(id);
 		if (data === undefined) {
 			return Promise.reject(new InsightError("Invalid dataset"));
 		}
 		const filteredData = this.executeWhere(where, data, id);
 		const unsortedData = this.executeOptions(options, filteredData,id);
-		const sortedData = this.executeOrder(options, unsortedData,id);
-		return Promise.resolve(sortedData);
+		return Promise.resolve(unsortedData);
 	}
 
 	private executeWhere(queryBody: any, data: Sections[], id: string): Sections[] {
@@ -108,7 +99,7 @@ export default class QueryExecutor {
 		});
 	}
 
-	private executeOptions(options: any, data: Sections[], id: string): Sections[] {
+	private executeOptions(options: any, data: Sections[], id: string): any {
 		let fieldsNeeded: string[] = options.COLUMNS.map((field: string) => field.split("_")[1]);
 		let result: any[] = data.map((section) => {
 			let filteredSection: any = {};
@@ -118,11 +109,17 @@ export default class QueryExecutor {
 			return filteredSection;
 		});
 
-		return result;
-	}
+		if (options["ORDER"]) {
+			const orderColumn = options["ORDER"];
+			const [idToSort, fieldToSortBy] = orderColumn.split("_");
+			result.sort((a, b) => {
+				const valueA = a[idToSort + "_" + fieldToSortBy];
+				const valueB = b[idToSort + "_" + fieldToSortBy];
+				return valueA - valueB;
+			});
+		}
 
-	private executeOrder(options: any, data: Sections[], id: string): any {
-		return data;
+		return result;
 	}
 
 	private executeAND(filterArray: any, data: Sections[],id: string): Sections[] {

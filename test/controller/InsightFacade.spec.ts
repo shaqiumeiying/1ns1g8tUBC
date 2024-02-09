@@ -830,10 +830,22 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						NOT: {}
+						AND: [
+							{
+								EQ: {
+									sections_avg: 90
+								}
+							},
+							{
+								IS: {
+									sections_dept: "c*"
+								}
+							}
+						]
 					},
 					OPTIONS: {
 						COLUMNS: [
+							"sections_dept",
 							"sections_avg"
 						],
 						ORDER: "sections_avg"
@@ -841,6 +853,7 @@ describe("InsightFacade", function () {
 				};
 				try {
 					const result1 = await facade.performQuery(query);
+					console.log(result1);
 				} catch (err) {
 					expect.fail(`Should not have thrown: ${err}`);
 				}
