@@ -90,8 +90,8 @@ export default class InsightFacade implements IInsightFacade {
 			const where = queryScript.getWhere();
 			const options = queryScript.getOptions();
 			const ids = queryScript.getID();
-			const id = ids[0];
-			if (ids.length !== 1 || !this.datasets.has(id)) {
+			const id = ids.values().next().value;
+			if (ids.size !== 1 || !this.datasets.has(id)) {
 				return Promise.reject(new InsightError("Invalid dataset"));
 			}
 			let result = new QueryExecutor(parsedQuery, this.datasets);
@@ -102,7 +102,7 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			return Promise.resolve(r);
 		} catch (error) {
-			return Promise.reject(new InsightError("Invalid query"));
+			return Promise.reject(new InsightError());
 		}
 	}
 

@@ -43,36 +43,40 @@ export default class QueryExecutor {
 		return Promise.resolve(unsortedData);
 	}
 
-	private executeWhere(queryBody: any, data: Sections[], id: string): Sections[] {
-		const keys = Object.keys(queryBody);
+	private executeWhere(query: any, data: Sections[], id: string): Sections[] {
+		const keys = Object.keys(query);
 		if (keys.length === 0) {
 			return data;
 		}
-
 		const filterKey = keys[0];
-		const filterValue = queryBody[filterKey];
+		const filterValue = query[filterKey];
 		switch (filterKey) {
-			case "EQ":
 			case "GT":
 			case "LT":
+			case "EQ":
 				return this.executeMCOMPARISON(filterKey, filterValue, data, id);
+			case "IS":
+				return this.executeSCOMPARISON(filterValue, data, id);
 			case "AND":
 				return this.executeAND(filterValue, data, id);
 			case "OR":
 				return this.executeOR(filterValue, data, id);
-			case "NOT":
-				return this.executeNEGATION(filterValue, data, id);
-			case "IS":
-				return this.executeSCOMPARISON(filterKey, filterValue, data, id);
 			default:
-				throw new Error(`Invalid filter key: ${filterKey}`);
+				return this.executeNEGATION(filterValue, data, id);
 		}
 	}
 
-	private executeSCOMPARISON(filterKey: string, filterValue: any, data: Sections[], id: string): Sections[] {
+	// Todo: this implementation is not correct, test with "" and "**" not working
+	private executeSCOMPARISON(filterValue: any, data: Sections[], id: string): Sections[] {
 		const key = Object.keys(filterValue)[0];
 		const field = key.split("_")[1];
 		const value = filterValue[key];
+		// Handle blank and double asterisk cases
+		if (value === "") {
+			return data.filter((section: Sections) => String(section[field as keyof Sections]) === "");
+		} else if (value === "**") {
+			return data; // return all data if filterValue is "**"
+		}
 		const regex = "^" + value.split("*").join(".*") + "$";
 		const regExp = new RegExp(regex);
 		return data.filter((section: Sections) => {
@@ -94,7 +98,7 @@ export default class QueryExecutor {
 				case "LT":
 					return section[field as keyof Sections] < value;
 				default:
-					throw new Error(`Invalid filter key: ${filterKey}`);
+					throw new InsightError();
 			}
 		});
 	}
@@ -108,7 +112,8 @@ export default class QueryExecutor {
 			}
 			return filteredSection;
 		});
-
+		// This sorting algorithm is referenced from:
+		// https://stackoverflow.com/questions/69026033/javascript-sort-an-array-of-objects-by-field-and-sorting-direction
 		if (options["ORDER"]) {
 			const orderColumn = options["ORDER"];
 			const [idToSort, fieldToSortBy] = orderColumn.split("_");
@@ -118,22 +123,16 @@ export default class QueryExecutor {
 				return valueA - valueB;
 			});
 		}
-
 		return result;
 	}
 
-	private executeAND(filterArray: any, data: Sections[],id: string): Sections[] {
-		let result: Sections[] = [];
-		filterArray.forEach((filter: any, index: number) => {
-			let keys = Object.keys(filter);
-			let newFilter = this.executeWhere({[keys[0]]: filter[keys[0]]}, data, id);
-			if (index === 0) {
-				result = newFilter;
-			} else {
-				result = result.filter((section) => newFilter.includes(section));
-			}
-		});
-		return result;
+
+	private executeAND(filterArray: any, data: Sections[], id: string): Sections[] {
+		return filterArray.reduce((prevFilter: any, currentFilter: any) => {
+			let keys = Object.keys(currentFilter);
+			let newFilter = new Set(this.executeWhere({[keys[0]]: currentFilter[keys[0]]}, data, id));
+			return prevFilter.filter((section: any) => newFilter.has(section));
+		}, data);
 	}
 
 	private executeOR(filterArray: any, data: Sections[], id: string): Sections[] {
@@ -141,7 +140,7 @@ export default class QueryExecutor {
 		filterArray.forEach((filter: any) => {
 			let keys = Object.keys(filter);
 			let newFilter = this.executeWhere({[keys[0]]: filter[keys[0]]}, data, id);
-			result = result.concat(newFilter);
+			result.push(...newFilter);
 		});
 		return result;
 	}
