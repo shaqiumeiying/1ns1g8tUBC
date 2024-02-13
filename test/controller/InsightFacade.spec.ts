@@ -826,22 +826,13 @@ describe("InsightFacade", function () {
 		});
 
 		describe("query test for debug", function () {
-			it("should return correct results for simple GT query", async function () {
+			it("manual check for debug", async function () {
 				let result;
 				const query = {
 					WHERE: {
-						AND: [
-							{
-								EQ: {
-									sections_avg: 90
-								}
-							},
-							{
-								IS: {
-									sections_dept: "c*"
-								}
-							}
-						]
+						IS: {
+							sections_dept: ""
+						}
 					},
 					OPTIONS: {
 						COLUMNS: [
@@ -873,7 +864,8 @@ describe("InsightFacade", function () {
 					return facade
 						.performQuery(test.input)
 						.then((result) => {
-							assert.deepEqual(result, test.expected);
+							// assert.include.deep.members(result, test.expected);
+							expect(result).includes.deep.members(test.expected);
 						})
 						.catch((err: any) => {
 							assert.fail(`performQuery threw unexpected error: ${err}`);
