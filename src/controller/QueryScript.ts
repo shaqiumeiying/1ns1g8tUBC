@@ -13,6 +13,45 @@ export default class QueryScript {
 		this.options = query["OPTIONS"];
 	}
 
+	// This helper function will help parse the ID from the query object, in this case, the WHERE or OPTIONS object
+	private parseIDFromObject(query: any, key: string, existingIds: Set<string>, ids: Set<string>): Set<string> {
+		let newIds = this.parseID(query[key], new Set([...existingIds, ...ids]));
+		for (let id of newIds) {
+			ids.add(id);
+		}
+		return ids;
+	}
+
+	// This helper function will help parse the ID from the query object, in this case,the COLUMN object
+	private parseIDFromArray(query: any, key: string, existingIds: Set<string>, ids: Set<string>): Set<string> {
+		for (let item of query[key]) {
+			if (typeof item === "string" && item.includes("_")) {
+				let id = item.split("_")[0];
+				if (!ids.has(id) && !existingIds.has(id)) {
+					ids.add(id);
+				}
+			}
+			if (typeof item === "object" && item !== null) {
+				let newIds = this.parseID(item, new Set([...existingIds, ...ids]));
+				for (let id of newIds) {
+					ids.add(id);
+				}
+			}
+		}
+		return ids;
+	}
+
+	// This helper function will help parse the ID from the query object, in this case, the ORDER.
+	private parseIDFromKey(key: string, existingIds: Set<string>, ids: Set<string>): Set<string> {
+		if (key.includes("_")) {
+			let id = key.split("_")[0];
+			if (!ids.has(id) && !existingIds.has(id)) {
+				ids.add(id);
+			}
+		}
+		return ids;
+	}
+
 	/**
 	 * Parses the query object and extracts the IDs.
 	 *
@@ -24,35 +63,11 @@ export default class QueryScript {
 		let ids: Set<string> = new Set();
 		for (let key in query) {
 			if (Array.isArray(query[key])) {
-				for (let item of query[key]) {
-					if (typeof item === "string" && item.includes("_")) {
-						let id = item.split("_")[0];
-						if (!ids.has(id) && !existingIds.has(id)) {
-							ids.add(id);
-						}
-					}
-					if (typeof item === "object" && item !== null) {
-						let newIds = this.parseID(item, new Set([...existingIds, ...ids]));
-						for (let id of newIds) {
-							ids.add(id);
-						}
-					}
-				}
+				ids = this.parseIDFromArray(query, key, existingIds, ids);
 			} else if (typeof query[key] === "object" && query[key] !== null) {
-				let newIds = this.parseID(query[key], new Set([...existingIds, ...ids]));
-				for (let id of newIds) {
-					ids.add(id);
-				}
-			} else if (key.includes("_")) {
-				let id = key.split("_")[0];
-				if (!ids.has(id) && !existingIds.has(id)) {
-					ids.add(id);
-				}
-			} else if (key === "ORDER" && typeof query[key] === "string" && query[key].includes("_")) {
-				let id = query[key].split("_")[0];
-				if (!ids.has(id) && !existingIds.has(id)) {
-					ids.add(id);
-				}
+				ids = this.parseIDFromObject(query, key, existingIds, ids);
+			} else {
+				ids = this.parseIDFromKey(key, existingIds, ids);
 			}
 		}
 		return ids;
