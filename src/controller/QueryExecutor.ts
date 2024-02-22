@@ -39,7 +39,7 @@ export default class QueryExecutor {
 			return Promise.reject(new InsightError("Invalid dataset"));
 		}
 		const filteredData = this.executeWhere(where, data, id);
-		const unsortedData = this.executeOptions(options, filteredData,id);
+		const unsortedData = this.executeOptions(options, filteredData, id);
 		return Promise.resolve(unsortedData);
 	}
 
@@ -125,7 +125,6 @@ export default class QueryExecutor {
 		}
 		return result;
 	}
-
 
 	private executeAND(filterArray: any, data: Sections[], id: string): Sections[] {
 		return filterArray.reduce((prevFilter: any, currentFilter: any) => {

@@ -76,7 +76,19 @@ describe("InsightFacade", function () {
 		await clearDisk();
 	});
 
-	describe("AddDataset", function () {
+	describe("AddDataset Rooms", function () {
+		beforeEach(function () {
+			facade = new InsightFacade();
+		});
+		afterEach(async function () {
+			await clearDisk();
+		});
+		it("should reject with a room kind, which do not have a index.htm file in root", async function () {
+			expect.fail("Should have rejected -- this just for template");
+		});
+	});
+
+	describe("AddDataset Sections", function () {
 		beforeEach(function () {
 			// This section resets the insightFacade instance
 			// This runs before each test
@@ -831,16 +843,13 @@ describe("InsightFacade", function () {
 				const query = {
 					WHERE: {
 						IS: {
-							sections_dept: ""
-						}
+							sections_dept: "",
+						},
 					},
 					OPTIONS: {
-						COLUMNS: [
-							"sections_dept",
-							"sections_avg"
-						],
-						ORDER: "sections_avg"
-					}
+						COLUMNS: ["dept", "sections_avg"],
+						ORDER: "sections_avg",
+					},
 				};
 				try {
 					const result1 = await facade.performQuery(query);

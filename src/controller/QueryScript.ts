@@ -1,76 +1,30 @@
-import MComparison from "./MComparison";
+import {parseIDFromKey, parseIDFromArray,parseIDFromObject, parseID} from "./IDParser";
 
 export default class QueryScript {
 	private id: Set<string>;
 	private where: any;
 	private options: any;
+	private transformations: any;
+	private ifTransformationsExist: boolean;
+	private applykeys: Set<string>;
 
 	constructor(query: any) {
-		let whereIds = this.parseID(query["WHERE"]);
-		let optionIds = this.parseID(query["OPTIONS"], whereIds);
+		this.ifTransformationsExist = this.CheckIfTransformationsExist(query);
+		let whereIds = parseID(query["WHERE"]);
+		let optionIds = parseID(query["OPTIONS"], whereIds);
+		let transformationsIds;
+		if (this.ifTransformationsExist) {
+			transformationsIds = parseID(query["TRANSFORMATIONS"], optionIds);
+			this.transformations = query["TRANSFORMATIONS"];
+		}
+		this.applykeys = new Set();
 		this.id = new Set([...whereIds, ...optionIds]);
 		this.where = query["WHERE"];
 		this.options = query["OPTIONS"];
 	}
 
-	// This helper function will help parse the ID from the query object, in this case, the WHERE or OPTIONS object
-	private parseIDFromObject(query: any, key: string, existingIds: Set<string>, ids: Set<string>): Set<string> {
-		let newIds = this.parseID(query[key], new Set([...existingIds, ...ids]));
-		for (let id of newIds) {
-			ids.add(id);
-		}
-		return ids;
-	}
-
-	// This helper function will help parse the ID from the query object, in this case,the COLUMN object
-	private parseIDFromArray(query: any, key: string, existingIds: Set<string>, ids: Set<string>): Set<string> {
-		for (let item of query[key]) {
-			if (typeof item === "string" && item.includes("_")) {
-				let id = item.split("_")[0];
-				if (!ids.has(id) && !existingIds.has(id)) {
-					ids.add(id);
-				}
-			}
-			if (typeof item === "object" && item !== null) {
-				let newIds = this.parseID(item, new Set([...existingIds, ...ids]));
-				for (let id of newIds) {
-					ids.add(id);
-				}
-			}
-		}
-		return ids;
-	}
-
-	// This helper function will help parse the ID from the query object, in this case, the ORDER.
-	private parseIDFromKey(key: string, existingIds: Set<string>, ids: Set<string>): Set<string> {
-		if (key.includes("_")) {
-			let id = key.split("_")[0];
-			if (!ids.has(id) && !existingIds.has(id)) {
-				ids.add(id);
-			}
-		}
-		return ids;
-	}
-
-	/**
-	 * Parses the query object and extracts the IDs.
-	 *
-	 * @param query - The query object to parse.
-	 * @param existingIds - An array of existing IDs to exclude from the result.
-	 * @returns A Set of extracted IDs.
-	 */
-	private parseID(query: any, existingIds: Set<string> = new Set()): Set<string> {
-		let ids: Set<string> = new Set();
-		for (let key in query) {
-			if (Array.isArray(query[key])) {
-				ids = this.parseIDFromArray(query, key, existingIds, ids);
-			} else if (typeof query[key] === "object" && query[key] !== null) {
-				ids = this.parseIDFromObject(query, key, existingIds, ids);
-			} else {
-				ids = this.parseIDFromKey(key, existingIds, ids);
-			}
-		}
-		return ids;
+	private CheckIfTransformationsExist(query: any): boolean {
+		return Object.keys(query).includes("TRANSFORMATIONS");
 	}
 
 	public getID(): Set<string> {
@@ -85,8 +39,16 @@ export default class QueryScript {
 		return this.options;
 	}
 
+	public getTransformations(): any {
+		return this.transformations;
+	}
+
 	public ValidateQuery(): boolean {
-		if (typeof this.where !== "object" || typeof this.options !== "object") {
+		if (
+			typeof this.where !== "object" ||
+			typeof this.options !== "object" ||
+			(this.ifTransformationsExist && typeof this.transformations !== "object")
+		) {
 			return false;
 		} // If WHERE or OPTIONS is not an object, return false
 		if (Object.keys(this.options).length === 0) {
@@ -95,11 +57,57 @@ export default class QueryScript {
 		if (Object.keys(this.where).length > 1 || Object.keys(this.options).length > 2) {
 			return false;
 		} // If WHERE has more than one key or OPTIONS has more than two keys, return false
+		if (this.ifTransformationsExist && Object.keys(this.transformations).length !== 2) {
+			return false;
+		} // If transformations has more than two keys, return false
 		if (!this.validateWhere(this.where)) {
 			return false;
 		}
 		if (!this.validateOptions(this.options)) {
 			return false;
+		}
+		return !(this.ifTransformationsExist && !this.validateTransformations(this.transformations));
+	}
+
+	public validateTransformations(transformations: any): boolean {
+		if (!Object.keys(transformations).includes("GROUP") || !Object.keys(transformations).includes("APPLY")) {
+			return false;
+		}
+		for (let item of transformations["GROUP"]) {
+			if (typeof item !== "string" || !item.includes("_")) {
+				return false;
+			}
+			let field = item.split("_")[1];
+			if (!this.isValidField(field)) {
+				return false;
+			}
+		}
+		if (!Object.keys(transformations).includes("APPLY") || !Array.isArray(transformations["APPLY"])) {
+			return false;
+		}
+		this.applykeys.clear();
+		for (let item of transformations["APPLY"]) {
+			if (typeof item !== "object" || Object.keys(item).length !== 1) {
+				return false;
+			}
+			let applykey = Object.keys(item)[0];
+			if (this.applykeys.has(applykey)) {
+				return false;
+			}
+			this.applykeys.add(applykey);
+			let applyRule = item[applykey];
+			if (typeof applyRule !== "object" || Object.keys(applyRule).length !== 1) {
+				return false;
+			}
+			let applyToken = Object.keys(applyRule)[0];
+			let key = applyRule[applyToken];
+			if (typeof key !== "string" || !key.includes("_")) {
+				return false;
+			}
+			let field = key.split("_")[1];
+			if (!this.isValidField(field) || !this.isValidApplyToken(applyToken, field)) {
+				return false;
+			}
 		}
 		return true;
 	}
@@ -110,11 +118,9 @@ export default class QueryScript {
 		}
 		const key = Object.keys(where)[0];
 		if (key === "AND" || key === "OR") {
-			// If the key is "AND" or "OR", the value should be an array of sub-conditions
 			if (!Array.isArray(where[key]) || where[key].length === 0) {
 				return false;
 			}
-			// Recursively validate each sub-condition
 			for (let subCondition of where[key]) {
 				if (!this.validateWhere(subCondition)) {
 					return false;
@@ -134,18 +140,15 @@ export default class QueryScript {
 		} else if (key === "IS") {
 			return this.validateSComparison(where);
 		} else {
-			// other keys are invalid
 			return false;
 		}
 		return true;
 	}
 
 	public validateMComparison(mComparison: any): boolean {
-		// Check if mComparison is an object with exactly one property
 		if (typeof mComparison !== "object" || Object.keys(mComparison).length !== 1) {
 			return false;
 		}
-		// Extract the key and value from the mComparison object
 		const key = mComparison[Object.keys(mComparison)[0]];
 		if (Object.keys(key).length !== 1) {
 			return false;
@@ -153,7 +156,6 @@ export default class QueryScript {
 		const object = Object.keys(key)[0];
 		const field = object.split("_")[1];
 		const number = key[object];
-		// Check if the key is a valid field and the value is a number
 		if (!this.isValidMField(field) || typeof number !== "number") {
 			return false;
 		}
@@ -162,17 +164,14 @@ export default class QueryScript {
 	}
 
 	private isValidMField(field: string): boolean {
-		// This is a placeholder. Replace this with your actual implementation.
 		const validFields = ["avg", "pass", "fail", "audit", "year"];
 		return validFields.includes(field);
 	}
 
 	public validateSComparison(sComparison: any): boolean {
-		// Check if sComparison is an object with exactly one property
 		if (typeof sComparison !== "object" || Object.keys(sComparison).length !== 1) {
 			return false;
 		}
-		// Extract the key and value from the mComparison object
 		const key = sComparison[Object.keys(sComparison)[0]];
 		if (Object.keys(key).length !== 1) {
 			return false;
@@ -183,15 +182,13 @@ export default class QueryScript {
 		if (!this.isValidSField(field) || typeof string !== "string") {
 			return false;
 		}
-		// This line of code for regex is referenced from:
-		// https://stackoverflow.com/questions/10868308/regular-expression-a-za-z0-9
+		// This line of code for regex is referenced from: https://stackoverflow.com/questions/10868308/regular-expression-a-za-z0-9
 		// Updated regex to allow for blank strings and strings with only asterisks
 		const regex = /^(\*)?[a-zA-Z0-9]*(\*)?$/;
 		if (!regex.test(string)) {
 			return false;
 		}
-		// Check if the string value contains at most two '*'
-		// This line of code for counting asterisks is referenced from:
+		// Check if the string value contains at most two '*' This line of code for counting asterisks is referenced from:
 		// https://stackoverflow.com/questions/881085/count-the-number-of-asterisks-in-a-string
 		const asteriskCount = (string.match(/\*/g) || []).length;
 		if (asteriskCount > 2) {
@@ -222,55 +219,75 @@ export default class QueryScript {
 	}
 
 	private validateColumns(columns: any): boolean {
-		// Check if columns is an array of strings
 		if (columns.length === 0 || !Array.isArray(columns) || !columns.every((item) => typeof item === "string")) {
 			return false;
 		}
 
-		// Check each column
 		for (let column of columns) {
 			let parts = column.split("_");
 			if (parts.length !== 2) {
 				return false;
 			}
-
 			let id = parts[0];
 			let field = parts[1];
 			if (!this.isValidField(field)) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
 	private validateOrder(order: any, columns: string[]): boolean {
-		// Check if order is a string
-		if (typeof order !== "string") {
-			return false;
+		if (typeof order === "string") {
+			let parts = order.split("_");
+			if (parts.length !== 2) {
+				return false;
+			}
+			let id = parts[0];
+			let field = parts[1];
+			if (!this.isValidField(field)) {
+				return false;
+			}
+			if (!columns.includes(order)) {
+				return false;
+			}
+			return true;
 		}
-
-		let parts = order.split("_");
-		if (parts.length !== 2) {
-			return false;
+		if (typeof order === "object" && "dir" in order && "keys" in order) {
+			const dir = order["dir"];
+			const keys = order["keys"];
+			if (dir !== "UP" && dir !== "DOWN") {
+				return false;
+			}
+			if (!Array.isArray(keys) || !keys.every((item) => typeof item === "string")) {
+				return false;
+			}
+			for (let key of keys) {
+				if (!columns.includes(key)) {
+					return false;
+				}
+			}
+			return true;
 		}
-
-		let id = parts[0];
-		let field = parts[1];
-		if (!this.isValidField(field)) {
-			return false;
-		}
-
-		// Check if the field is in the COLUMNS array
-		if (!columns.includes(order)) {
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	private isValidField(field: string): boolean {
 		const validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
 		return validFields.includes(field);
+	}
+
+	private isValidApplyToken(applyToken: string, field: string): boolean {
+		const validApplyTokens = ["MAX", "MIN", "AVG", "SUM", "COUNT"];
+		if (!validApplyTokens.includes(applyToken)) {
+			return false;
+		}
+		if (["MAX","MIN","AVG","SUM"].includes(applyToken) && !this.isValidMField(field)) {
+			return false;
+		}
+		if (["COUNT"].includes(applyToken) && !this.isValidField(field)) {
+			return false;
+		}
+		return true;
 	}
 }
