@@ -12,6 +12,7 @@ import * as fs from "fs-extra";
 import Sections from "./Sections";
 import QueryScript from "./QueryScript";
 import QueryExecutor from "./QueryExecutor";
+import Rooms from "./Rooms";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -19,12 +20,12 @@ import QueryExecutor from "./QueryExecutor";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	private datasets: Map<string, any[]>;
+	private datasets: Map<string, Sections[]>;
 	private isDataBeenLoadedIndicator: boolean;
 
 	constructor() {
 		// keep track of valid datasets
-		this.datasets = new Map<string, any[]>();
+		this.datasets = new Map<string, Sections[]>();
 		this.isDataBeenLoadedIndicator = false;
 	}
 
@@ -50,14 +51,21 @@ export default class InsightFacade implements IInsightFacade {
 			if (this.datasets.has(id)) {
 				return Promise.reject(new InsightError("id already exists"));
 			}
-			if (kind !== InsightDatasetKind.Sections) {
-				return Promise.reject(new InsightError("invalid kind"));
+			if (kind === InsightDatasetKind.Sections) {
+				return dp.validateSections(id, content).then((result) => {
+					this.datasets.set(id, result);
+					let list: string[] = Array.from(this.datasets.keys());
+					return Promise.resolve(list);
+				});
+			} else if (kind === InsightDatasetKind.Rooms) {
+				return dp.validateRooms(id, content).then((result) => {
+					this.datasets.set(id, result);
+					let list: string[] = Array.from(this.datasets.keys());
+					return Promise.resolve(list);
+				});
+			} else {
+				return Promise.reject(new InsightError("Invalid kind"));
 			}
-			return dp.validateDataset(id, content).then((result) => {
-				this.datasets.set(id, result);
-				let list: string[] = Array.from(this.datasets.keys());
-				return Promise.resolve(list);
-			});
 		});
 	}
 

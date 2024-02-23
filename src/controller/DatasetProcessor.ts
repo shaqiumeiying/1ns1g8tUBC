@@ -2,9 +2,10 @@ import {InsightError} from "./IInsightFacade";
 import JSZip from "jszip";
 import Sections from "./Sections";
 import InsightFacade from "./InsightFacade";
+import Rooms from "./Rooms";
 
 export default class DatasetProcessor {
-	public async validateDataset(id: string, content: string): Promise<Sections[]> {
+	public async validateSections(id: string, content: string): Promise<Sections[]> {
 		try {
 			const zip = new JSZip();
 			const rawFile = await zip.loadAsync(content, {base64: true});
@@ -64,5 +65,12 @@ export default class DatasetProcessor {
 		];
 		return requiredFields.every((field) => field in section);
 	}
-	//
+
+	// Todo: implement this method
+	// need to use parse5 to parse the html file
+	// need to valid the room object
+	// may need to add helper function to parse the html file, it seem very complex
+	public async validateRooms(id: string, content: string): Promise<Sections[]> {
+		return Promise.reject(new InsightError("Not implemented"));
+	}
 }
