@@ -1,4 +1,3 @@
-
 export function parseID(query: any, existingIds: Set<string> = new Set()): Set<string> {
 	let ids: Set<string> = new Set();
 	for (let key in query) {

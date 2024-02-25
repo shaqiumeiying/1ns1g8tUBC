@@ -843,12 +843,15 @@ describe("InsightFacade", function () {
 				const query = {
 					WHERE: {
 						IS: {
-							sections_dept: "",
+							sections_dept: "*be*",
 						},
 					},
 					OPTIONS: {
-						COLUMNS: ["dept", "sections_avg"],
-						ORDER: "sections_avg",
+						COLUMNS: ["sections_dept", "sections_avg"],
+						ORDER: {
+							dir: "DOWN",
+							keys: ["sections_avg", "sections_dept"],
+						},
 					},
 				};
 				try {

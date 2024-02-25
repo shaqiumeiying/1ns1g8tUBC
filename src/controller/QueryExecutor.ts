@@ -19,7 +19,7 @@ export default class QueryExecutor {
 		this.datasets = datasets;
 	}
 
-	public executeQuery(IdfromParse: string, WhereFromMain: any, OptionsFromMain: any): Promise<InsightResult[]> {
+	public executeQuery(IdMain: string, WhereMain: any, OptionsMain: any, TransMain: any): Promise<InsightResult[]> {
 		if (!Object.keys(this.query).includes("OPTIONS") || !Object.keys(this.query).includes("WHERE")) {
 			return Promise.reject(new InsightError("no options or where"));
 		}
@@ -27,20 +27,39 @@ export default class QueryExecutor {
 			this.query === null ||
 			this.query === undefined ||
 			Object.keys(this.query).length === 0 ||
-			Object.keys(this.query).length > 2
+			Object.keys(this.query).length > 3 // OP, WHERE, TRANSFORMATIONS
 		) {
 			return Promise.reject(new InsightError("Invalid query"));
 		}
-		const id = IdfromParse;
-		const where = WhereFromMain;
-		const options = OptionsFromMain;
+		const id = IdMain;
+		const where = WhereMain;
+		const options = OptionsMain;
+		const transformations = TransMain;
 		const data = this.datasets.get(id);
 		if (data === undefined) {
 			return Promise.reject(new InsightError("Invalid dataset"));
 		}
-		const filteredData = this.executeWhere(where, data, id);
+		let filteredData = this.executeWhere(where, data, id);
+		if (transformations) {
+			filteredData = this.executeTransformations(transformations, filteredData, id);
+		}
 		const unsortedData = this.executeOptions(options, filteredData, id);
 		return Promise.resolve(unsortedData);
+	}
+
+	// TODO: implement TRANSFORMATIONS
+	// this is a placeholder
+	private executeTransformations(transformations: any, data: any, id: string): any {
+		let groupKeys = transformations["GROUP"];
+		let applyKeys = transformations["APPLY"];
+
+		let groupedData = this.groupData(groupKeys, data, id);
+	}
+
+	// todo:
+	// we need grouo keys to group the data
+	private groupData(groupKeys: string[], data: any, id: string): any {
+		return data;
 	}
 
 	private executeWhere(query: any, data: Sections[], id: string): Sections[] {
@@ -104,6 +123,7 @@ export default class QueryExecutor {
 	}
 
 	private executeOptions(options: any, data: Sections[], id: string): any {
+		// TODO: this is not a 100% correct implementation, still not support ANYKEY in the sort yet
 		let fieldsNeeded: string[] = options.COLUMNS.map((field: string) => field.split("_")[1]);
 		let result: any[] = data.map((section) => {
 			let filteredSection: any = {};
@@ -115,13 +135,30 @@ export default class QueryExecutor {
 		// This sorting algorithm is referenced from:
 		// https://stackoverflow.com/questions/69026033/javascript-sort-an-array-of-objects-by-field-and-sorting-direction
 		if (options["ORDER"]) {
-			const orderColumn = options["ORDER"];
-			const [idToSort, fieldToSortBy] = orderColumn.split("_");
-			result.sort((a, b) => {
-				const valueA = a[idToSort + "_" + fieldToSortBy];
-				const valueB = b[idToSort + "_" + fieldToSortBy];
-				return valueA - valueB;
-			});
+			if (typeof options["ORDER"] === "string") {
+				const orderColumn = options["ORDER"];
+				const [idToSort, fieldToSortBy] = orderColumn.split("_");
+				result.sort((a, b) => {
+					const valueA = a[idToSort + "_" + fieldToSortBy];
+					const valueB = b[idToSort + "_" + fieldToSortBy];
+					return valueA - valueB;
+				});
+			} else if (typeof options["ORDER"] === "object") {
+				const orderObject = options["ORDER"];
+				const direction = orderObject["dir"] === "UP" ? 1 : -1;
+				const keys = orderObject["keys"];
+				result.sort((a, b) => {
+					for (let key of keys) {
+						const [idToSort, fieldToSortBy] = key.split("_");
+						const valueA = a[idToSort + "_" + fieldToSortBy];
+						const valueB = b[idToSort + "_" + fieldToSortBy];
+						if (valueA !== valueB) {
+							return (valueA - valueB) * direction;
+						}
+					}
+					return 0;
+				});
+			}
 		}
 		return result;
 	}
