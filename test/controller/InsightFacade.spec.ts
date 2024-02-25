@@ -841,17 +841,27 @@ describe("InsightFacade", function () {
 			it("manual check for debug", async function () {
 				let result;
 				const query = {
-					WHERE: {
-						IS: {
-							sections_dept: "*be*",
-						},
-					},
+					WHERE: {},
+
 					OPTIONS: {
-						COLUMNS: ["sections_dept", "sections_avg"],
-						ORDER: {
-							dir: "DOWN",
-							keys: ["sections_avg", "sections_dept"],
-						},
+						COLUMNS: ["sections_title", "sections_dept", "overallAvg","overallPass"]
+					},
+
+					TRANSFORMATIONS: {
+						GROUP: ["sections_title", "sections_dept"],
+
+						APPLY: [
+							{
+								overallAvg: {
+									AVG: "sections_avg",
+								},
+							},
+							{
+								overallPass: {
+									MIN: "sections_pass",
+								},
+							},
+						],
 					},
 				};
 				try {

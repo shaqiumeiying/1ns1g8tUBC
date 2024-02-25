@@ -1,5 +1,7 @@
 import QueryScript from "./QueryScript";
 import Sections from "./Sections";
+import DataTransformer from "./DataTransformer";
+import Rooms from "./Rooms";
 import {
 	IInsightFacade,
 	InsightDataset,
@@ -13,6 +15,7 @@ import {
 export default class QueryExecutor {
 	private query: any;
 	private datasets: Map<string, any[]>;
+	private DataTransformer: DataTransformer = new DataTransformer();
 
 	constructor(query: any, datasets: Map<string, any[]>) {
 		this.query = query;
@@ -41,26 +44,12 @@ export default class QueryExecutor {
 		}
 		let filteredData = this.executeWhere(where, data, id);
 		if (transformations) {
-			filteredData = this.executeTransformations(transformations, filteredData, id);
+			filteredData = this.DataTransformer.executeTransformations(transformations, filteredData, id);
 		}
 		const unsortedData = this.executeOptions(options, filteredData, id);
 		return Promise.resolve(unsortedData);
 	}
 
-	// TODO: implement TRANSFORMATIONS
-	// this is a placeholder
-	private executeTransformations(transformations: any, data: any, id: string): any {
-		let groupKeys = transformations["GROUP"];
-		let applyKeys = transformations["APPLY"];
-
-		let groupedData = this.groupData(groupKeys, data, id);
-	}
-
-	// todo:
-	// we need grouo keys to group the data
-	private groupData(groupKeys: string[], data: any, id: string): any {
-		return data;
-	}
 
 	private executeWhere(query: any, data: Sections[], id: string): Sections[] {
 		const keys = Object.keys(query);
@@ -122,10 +111,10 @@ export default class QueryExecutor {
 		});
 	}
 
-	private executeOptions(options: any, data: Sections[], id: string): any {
+	private executeOptions(options: any, data: any, id: string): any {
 		// TODO: this is not a 100% correct implementation, still not support ANYKEY in the sort yet
 		let fieldsNeeded: string[] = options.COLUMNS.map((field: string) => field.split("_")[1]);
-		let result: any[] = data.map((section) => {
+		let result: any[] = data.map((section: any) => {
 			let filteredSection: any = {};
 			for (let field of fieldsNeeded) {
 				filteredSection[id + "_" + field] = section[field as keyof Sections];
