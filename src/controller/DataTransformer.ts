@@ -1,34 +1,51 @@
-// DataTransformer.ts
 import Sections from "./Sections";
+import {InsightResult} from "./IInsightFacade";
+
 
 export default class DataTransformer {
+	private groupKeys: string[];
+	private uniqueFields: string[];
+	private combinedFields: string[];
+	private operationName: string[];
+	private operationKeys: string[];
+
+	constructor() {
+		this.groupKeys = [];
+		this.uniqueFields = [];
+		this.combinedFields = [];
+		this.operationName = [];
+		this.operationKeys = [];
+	}
+
 	public executeTransformations(transformations: any, data: any, id: string): any {
 		let group = transformations["GROUP"];
 		let apply = transformations["APPLY"];
-		const groupKeys = group.map((field: string) => field.split("_")[1]);
-		let uniqueFields: string[] = [];
+		this.groupKeys = group.map((field: string) => field.split("_")[1]);
 		apply.forEach((applyObj: any) => {
 			let operationKey = Object.keys(applyObj)[0]; // e.g., 'overallAvg'
+			this.operationName.push(operationKey);
 			let operationObj = applyObj[operationKey]; // e.g., { AVG: "sections_avg" }
 			let operation = Object.keys(operationObj)[0]; // e.g., 'AVG'
+			this.operationKeys.push(operation);
 			let field = operationObj[operation].split("_")[1]; // e.g., 'avg'
-			if (!uniqueFields.includes(field)) {
-				uniqueFields.push(field);
+			if (!this.uniqueFields.includes(field)) {
+				this.uniqueFields.push(field);
 			}
 		});
-		let combinedFields = groupKeys.concat(uniqueFields);
+		this.combinedFields = this.groupKeys.concat(this.uniqueFields);
 		let dataToGroup: any[] = data.map((section: any) => {
 			let filteredSection: any = {};
-			for (let field of combinedFields) {
-				filteredSection[id + "_" + field] = section[field as keyof Sections];
+			for (let field of this.combinedFields) {
+				filteredSection[field] = section[field as keyof Sections];
 			}
 			return filteredSection;
 		});
-		let groupedData = this.groupData(group, dataToGroup, id);
-		console.log(groupedData);
+		let groupedData = this.groupData(this.groupKeys, dataToGroup, id);
+		let result = this.applyData(apply, groupedData, id);
+		return result;
 	}
 
-	public groupData(keys: string[], data: any[], id: string): any {
+	private groupData(keys: string[], data: any[], id: string): any {
 		const groupeData: {[key: string]: any[]} = {};
 		for (const item of data) {
 			const key = keys.map((column) => item[column]);
@@ -39,5 +56,38 @@ export default class DataTransformer {
 			groupeData[keyString].push(item);
 		}
 		return groupeData;
+	}
+
+	private applyData(apply: any, groupedData: any, id: string): InsightResult[] {
+		let result: InsightResult[] = [];
+		for (let groupKey in groupedData) {
+			let group = groupedData[groupKey];
+			let resultObj: any = {};
+			// Add group keys and their values to the result object
+			let groupKeysValues = groupKey.split("_");
+			for (let i = 0; i < this.groupKeys.length; i++) {
+				resultObj[this.groupKeys[i]] = groupKeysValues[i];
+			}
+			// Apply operations to the group
+			for (let i = 0; i < this.operationKeys.length; i++) {
+				let operation = this.operationKeys[i];
+				let operationName = this.operationName[i];
+				let field = this.uniqueFields[i];
+				let values = group.map((item: any) => item[field]);
+				let calculatedValue;
+				switch (operation) {
+					case "AVG":
+						calculatedValue = values.reduce((a: number, b: number) => a + b, 0) / values.length;
+						break;
+					case "MIN":
+						calculatedValue = Math.min(...values);
+						break;
+					// Add more cases here for other operations
+				}
+				resultObj[operationName] = calculatedValue;
+			}
+			result.push(resultObj);
+		}
+		return result;
 	}
 }

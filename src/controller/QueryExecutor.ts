@@ -46,7 +46,7 @@ export default class QueryExecutor {
 		if (transformations) {
 			filteredData = this.DataTransformer.executeTransformations(transformations, filteredData, id);
 		}
-		const unsortedData = this.executeOptions(options, filteredData, id);
+		const unsortedData = this.executeOptions(options, filteredData, id, transformations);
 		return Promise.resolve(unsortedData);
 	}
 
@@ -111,9 +111,9 @@ export default class QueryExecutor {
 		});
 	}
 
-	private executeOptions(options: any, data: any, id: string): any {
+	private executeOptions(options: any, data: any, id: string, trans: any): any {
 		// TODO: this is not a 100% correct implementation, still not support ANYKEY in the sort yet
-		let fieldsNeeded: string[] = options.COLUMNS.map((field: string) => field.split("_")[1]);
+		let fieldsNeeded: string[] = options.COLUMNS;
 		let result: any[] = data.map((section: any) => {
 			let filteredSection: any = {};
 			for (let field of fieldsNeeded) {

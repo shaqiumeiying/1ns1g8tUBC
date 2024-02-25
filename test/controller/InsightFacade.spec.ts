@@ -841,7 +841,11 @@ describe("InsightFacade", function () {
 			it("manual check for debug", async function () {
 				let result;
 				const query = {
-					WHERE: {},
+					WHERE: {
+						GT:{
+							sections_avg: 98
+						}
+					},
 
 					OPTIONS: {
 						COLUMNS: ["sections_title", "sections_dept", "overallAvg","overallPass"]
