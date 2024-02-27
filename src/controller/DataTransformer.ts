@@ -27,9 +27,10 @@ export default class DataTransformer {
 			let operation = Object.keys(operationObj)[0]; // e.g., 'AVG'
 			this.operationKeys.push(operation);
 			let field = operationObj[operation].split("_")[1]; // e.g., 'avg'
-			if (!this.uniqueFields.includes(field)) {
-				this.uniqueFields.push(field);
-			}
+			// if (!this.uniqueFields.includes(field)) {
+			// 	this.uniqueFields.push(field);
+			// }
+			this.uniqueFields.push(field);
 		});
 		this.combinedFields = this.groupKeys.concat(this.uniqueFields);
 		let dataToGroup: any[] = data.map((section: any) => {

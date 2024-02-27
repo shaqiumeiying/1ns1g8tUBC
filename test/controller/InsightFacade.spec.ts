@@ -842,32 +842,119 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						GT: {
-							sections_avg: 98,
-						},
+						AND: [
+							{
+								AND: [
+									{
+										LT: {
+											sections_avg: 90
+										}
+									},
+									{
+										EQ: {
+											sections_year: 1900
+										}
+									},
+									{
+										GT: {
+											sections_pass: 140
+										}
+									},
+									{
+										IS: {
+											sections_dept: "cpsc"
+										}
+									},
+									{
+										IS: {
+											sections_title: "**"
+										}
+									},
+									{
+										IS: {
+											sections_dept: "*c"
+										}
+									},
+									{
+										IS: {
+											sections_title: "i*"
+										}
+									},
+									{
+										IS: {
+											sections_title: "*"
+										}
+									}
+								]
+							},
+							{
+								OR: [
+									{
+										NOT: {
+											LT: {
+												sections_avg: 99
+											}
+										}
+									},
+									{
+										NOT: {
+											AND: [
+												{
+													LT: {
+														sections_fail: 4
+													}
+												},
+												{
+													IS: {
+														sections_instructor: "*d*"
+													}
+												}
+											]
+										}
+									}
+								]
+							}
+						]
 					},
 					OPTIONS: {
-						COLUMNS: ["sections_title", "overallAvg", "overallPass"],
+						COLUMNS: [
+							"sections_dept",
+							"sections_title",
+							"overallAvg",
+							"overallPass",
+							"overallSum"
+						],
 						ORDER: {
-							dir: "DOWN",
-							keys: ["overallPass"],
-						},
+							dir: "UP",
+							keys: [
+								"overallPass",
+								"overallSum"
+							]
+						}
 					},
 					TRANSFORMATIONS: {
-						GROUP: ["sections_title", "sections_dept"],
+						GROUP: [
+							"sections_title",
+							"sections_dept"
+						],
 						APPLY: [
 							{
 								overallAvg: {
-									AVG: "sections_avg",
-								},
+									AVG: "sections_avg"
+								}
 							},
 							{
 								overallPass: {
-									MIN: "sections_pass",
-								},
+									MIN: "sections_pass"
+								}
 							},
-						],
-					},
+							{
+								overallSum: {
+									SUM: "sections_pass"
+								}
+							}
+						]
+					}
 				};
 				try {
 					const result1 = await facade.performQuery(query);
