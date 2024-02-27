@@ -1,7 +1,6 @@
 import Sections from "./Sections";
 import {InsightResult} from "./IInsightFacade";
 
-
 export default class DataTransformer {
 	private groupKeys: string[];
 	private uniqueFields: string[];
@@ -77,12 +76,22 @@ export default class DataTransformer {
 				let calculatedValue;
 				switch (operation) {
 					case "AVG":
-						calculatedValue = values.reduce((a: number, b: number) => a + b, 0) / values.length;
+						calculatedValue = Number(
+							(values.reduce((a: number, b: number) => a + b, 0) / values.length).toFixed(2)
+						);
 						break;
 					case "MIN":
 						calculatedValue = Math.min(...values);
 						break;
 					// Add more cases here for other operations
+					case "MAX":
+						calculatedValue = Math.max(...values);
+						break;
+					case "COUNT":
+						calculatedValue = values.length;
+					case "SUM":
+						calculatedValue = Number(values.reduce((a: number, b: number) => a + b, 0).toFixed(2));
+						break;
 				}
 				resultObj[operationName] = calculatedValue;
 			}

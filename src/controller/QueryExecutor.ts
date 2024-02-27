@@ -16,10 +16,12 @@ export default class QueryExecutor {
 	private query: any;
 	private datasets: Map<string, any[]>;
 	private DataTransformer: DataTransformer = new DataTransformer();
+	private NotAnykeysFields: string[];
 
 	constructor(query: any, datasets: Map<string, any[]>) {
 		this.query = query;
 		this.datasets = datasets;
+		this.NotAnykeysFields = ["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year"];
 	}
 
 	public executeQuery(IdMain: string, WhereMain: any, OptionsMain: any, TransMain: any): Promise<InsightResult[]> {
@@ -46,10 +48,9 @@ export default class QueryExecutor {
 		if (transformations) {
 			filteredData = this.DataTransformer.executeTransformations(transformations, filteredData, id);
 		}
-		const unsortedData = this.executeOptions(options, filteredData, id, transformations);
+		const unsortedData = this.executeOptions(options, filteredData, id);
 		return Promise.resolve(unsortedData);
 	}
-
 
 	private executeWhere(query: any, data: Sections[], id: string): Sections[] {
 		const keys = Object.keys(query);
@@ -111,25 +112,38 @@ export default class QueryExecutor {
 		});
 	}
 
-	private executeOptions(options: any, data: any, id: string, trans: any): any {
+	private executeOptions(options: any, data: any, id: string): any {
 		// TODO: this is not a 100% correct implementation, still not support ANYKEY in the sort yet
-		let fieldsNeeded: string[] = options.COLUMNS;
+		let fieldsNeeded: string[] = options.COLUMNS.map((field: string) => {
+			// Check if the field contains an underscore
+			if (field.includes("_")) {
+				// If it does, split it as before
+				return field.split("_")[1];
+			} else {
+				// If it doesn't, return the field as is
+				return field;
+			}
+		});
 		let result: any[] = data.map((section: any) => {
 			let filteredSection: any = {};
 			for (let field of fieldsNeeded) {
-				filteredSection[id + "_" + field] = section[field as keyof Sections];
+				if (this.NotAnykeysFields.includes(field)) {
+					// If the field is in the list, prepend the id and underscore
+					filteredSection[id + "_" + field] = section[field as keyof Sections];
+				} else {
+					// If the field is not in the list (ANYKEY), use the field directly
+					filteredSection[field] = section[field];
+				}
 			}
 			return filteredSection;
 		});
-		// This sorting algorithm is referenced from:
-		// https://stackoverflow.com/questions/69026033/javascript-sort-an-array-of-objects-by-field-and-sorting-direction
 		if (options["ORDER"]) {
 			if (typeof options["ORDER"] === "string") {
 				const orderColumn = options["ORDER"];
 				const [idToSort, fieldToSortBy] = orderColumn.split("_");
 				result.sort((a, b) => {
-					const valueA = a[idToSort + "_" + fieldToSortBy];
-					const valueB = b[idToSort + "_" + fieldToSortBy];
+					const valueA = a[orderColumn];
+					const valueB = b[orderColumn];
 					return valueA - valueB;
 				});
 			} else if (typeof options["ORDER"] === "object") {
@@ -139,8 +153,8 @@ export default class QueryExecutor {
 				result.sort((a, b) => {
 					for (let key of keys) {
 						const [idToSort, fieldToSortBy] = key.split("_");
-						const valueA = a[idToSort + "_" + fieldToSortBy];
-						const valueB = b[idToSort + "_" + fieldToSortBy];
+						const valueA = a[key];
+						const valueB = b[key];
 						if (valueA !== valueB) {
 							return (valueA - valueB) * direction;
 						}

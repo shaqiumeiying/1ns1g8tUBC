@@ -842,18 +842,19 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						GT:{
-							sections_avg: 98
-						}
+						GT: {
+							sections_avg: 98,
+						},
 					},
-
 					OPTIONS: {
-						COLUMNS: ["sections_title", "sections_dept", "overallAvg","overallPass"]
+						COLUMNS: ["sections_title", "overallAvg", "overallPass"],
+						ORDER: {
+							dir: "DOWN",
+							keys: ["overallPass"],
+						},
 					},
-
 					TRANSFORMATIONS: {
 						GROUP: ["sections_title", "sections_dept"],
-
 						APPLY: [
 							{
 								overallAvg: {
