@@ -1,0 +1,105 @@
+{
+	"title": "C2 - AVG, MIN, SUM, GT, ORDERS - DOWN",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 98
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"overallAvg",
+				"overallPass",
+				"overallSum"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"overallPass",
+					"overallSum"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title",
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"overallAvg": {
+						"AVG": "sections_avg"
+					}
+				},
+				{
+					"overallPass": {
+						"MIN": "sections_pass"
+					}
+				},
+				{
+					"overallSum": {
+						"SUM": "sections_pass"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "work int health",
+			"overallAvg": 98.98,
+			"overallPass": 82,
+			"overallSum": 164
+		},
+		{
+			"sections_title": "educ stds autism",
+			"overallAvg": 98.7,
+			"overallPass": 17,
+			"overallSum": 107
+		},
+		{
+			"sections_title": "career planning",
+			"overallAvg": 99.19,
+			"overallPass": 16,
+			"overallSum": 16
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"overallAvg": 98.46,
+			"overallPass": 14,
+			"overallSum": 56
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"overallAvg": 98.54,
+			"overallPass": 12,
+			"overallSum": 56
+		},
+		{
+			"sections_title": "multimedia sys",
+			"overallAvg": 98.75,
+			"overallPass": 12,
+			"overallSum": 24
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"overallAvg": 98.45,
+			"overallPass": 11,
+			"overallSum": 22
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"overallAvg": 98.38,
+			"overallPass": 10,
+			"overallSum": 44
+		},
+		{
+			"sections_title": "algb topology i",
+			"overallAvg": 99.78,
+			"overallPass": 9,
+			"overallSum": 18
+		}
+	]
+}

@@ -1,5 +1,7 @@
 import QueryScript from "./QueryScript";
 import Sections from "./Sections";
+import DataTransformer from "./DataTransformer";
+import Rooms from "./Rooms";
 import {
 	IInsightFacade,
 	InsightDataset,
@@ -13,13 +15,16 @@ import {
 export default class QueryExecutor {
 	private query: any;
 	private datasets: Map<string, any[]>;
+	private DataTransformer: DataTransformer = new DataTransformer();
+	private NotAnykeysFields: string[];
 
 	constructor(query: any, datasets: Map<string, any[]>) {
 		this.query = query;
 		this.datasets = datasets;
+		this.NotAnykeysFields = ["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year"];
 	}
 
-	public executeQuery(IdfromParse: string, WhereFromMain: any, OptionsFromMain: any): Promise<InsightResult[]> {
+	public executeQuery(IdMain: string, WhereMain: any, OptionsMain: any, TransMain: any): Promise<InsightResult[]> {
 		if (!Object.keys(this.query).includes("OPTIONS") || !Object.keys(this.query).includes("WHERE")) {
 			return Promise.reject(new InsightError("no options or where"));
 		}
@@ -27,18 +32,22 @@ export default class QueryExecutor {
 			this.query === null ||
 			this.query === undefined ||
 			Object.keys(this.query).length === 0 ||
-			Object.keys(this.query).length > 2
+			Object.keys(this.query).length > 3 // OP, WHERE, TRANSFORMATIONS
 		) {
 			return Promise.reject(new InsightError("Invalid query"));
 		}
-		const id = IdfromParse;
-		const where = WhereFromMain;
-		const options = OptionsFromMain;
+		const id = IdMain;
+		const where = WhereMain;
+		const options = OptionsMain;
+		const transformations = TransMain;
 		const data = this.datasets.get(id);
 		if (data === undefined) {
 			return Promise.reject(new InsightError("Invalid dataset"));
 		}
-		const filteredData = this.executeWhere(where, data, id);
+		let filteredData = this.executeWhere(where, data, id);
+		if (transformations) {
+			filteredData = this.DataTransformer.executeTransformations(transformations, filteredData, id);
+		}
 		const unsortedData = this.executeOptions(options, filteredData, id);
 		return Promise.resolve(unsortedData);
 	}
@@ -103,25 +112,56 @@ export default class QueryExecutor {
 		});
 	}
 
-	private executeOptions(options: any, data: Sections[], id: string): any {
-		let fieldsNeeded: string[] = options.COLUMNS.map((field: string) => field.split("_")[1]);
-		let result: any[] = data.map((section) => {
+	private executeOptions(options: any, data: any, id: string): any {
+		// TODO: this is not a 100% correct implementation, still not support ANYKEY in the sort yet
+		let fieldsNeeded: string[] = options.COLUMNS.map((field: string) => {
+			// Check if the field contains an underscore
+			if (field.includes("_")) {
+				// If it does, split it as before
+				return field.split("_")[1];
+			} else {
+				// If it doesn't, return the field as is
+				return field;
+			}
+		});
+		let result: any[] = data.map((section: any) => {
 			let filteredSection: any = {};
 			for (let field of fieldsNeeded) {
-				filteredSection[id + "_" + field] = section[field as keyof Sections];
+				if (this.NotAnykeysFields.includes(field)) {
+					// If the field is in the list, prepend the id and underscore
+					filteredSection[id + "_" + field] = section[field as keyof Sections];
+				} else {
+					// If the field is not in the list (ANYKEY), use the field directly
+					filteredSection[field] = section[field];
+				}
 			}
 			return filteredSection;
 		});
-		// This sorting algorithm is referenced from:
-		// https://stackoverflow.com/questions/69026033/javascript-sort-an-array-of-objects-by-field-and-sorting-direction
 		if (options["ORDER"]) {
-			const orderColumn = options["ORDER"];
-			const [idToSort, fieldToSortBy] = orderColumn.split("_");
-			result.sort((a, b) => {
-				const valueA = a[idToSort + "_" + fieldToSortBy];
-				const valueB = b[idToSort + "_" + fieldToSortBy];
-				return valueA - valueB;
-			});
+			if (typeof options["ORDER"] === "string") {
+				const orderColumn = options["ORDER"];
+				const [idToSort, fieldToSortBy] = orderColumn.split("_");
+				result.sort((a, b) => {
+					const valueA = a[orderColumn];
+					const valueB = b[orderColumn];
+					return valueA - valueB;
+				});
+			} else if (typeof options["ORDER"] === "object") {
+				const orderObject = options["ORDER"];
+				const direction = orderObject["dir"] === "UP" ? 1 : -1;
+				const keys = orderObject["keys"];
+				result.sort((a, b) => {
+					for (let key of keys) {
+						const [idToSort, fieldToSortBy] = key.split("_");
+						const valueA = a[key];
+						const valueB = b[key];
+						if (valueA !== valueB) {
+							return (valueA - valueB) * direction;
+						}
+					}
+					return 0;
+				});
+			}
 		}
 		return result;
 	}

@@ -97,13 +97,14 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			const where = queryScript.getWhere();
 			const options = queryScript.getOptions();
+			const transformations = queryScript.getTransformations();
 			const ids = queryScript.getID();
 			const id = ids.values().next().value;
 			if (ids.size !== 1 || !this.datasets.has(id)) {
 				return Promise.reject(new InsightError("Invalid dataset"));
 			}
 			let result = new QueryExecutor(parsedQuery, this.datasets);
-			let r = await result.executeQuery(id, where, options);
+			let r = await result.executeQuery(id, where, options, transformations);
 			// Convert Sections objects to InsightResult objects
 			if (r.length >= 5000) {
 				return Promise.reject(new ResultTooLargeError());

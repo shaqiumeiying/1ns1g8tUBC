@@ -1,4 +1,4 @@
-import {parseIDFromKey, parseIDFromArray,parseIDFromObject, parseID} from "./IDParser";
+import {parseIDFromKey, parseIDFromArray, parseIDFromObject, parseID} from "./IDParser";
 
 export default class QueryScript {
 	private id: Set<string>;
@@ -40,7 +40,9 @@ export default class QueryScript {
 	}
 
 	public getTransformations(): any {
-		return this.transformations;
+		if (this.ifTransformationsExist) {
+			return this.transformations;
+		}
 	}
 
 	public ValidateQuery(): boolean {
@@ -60,13 +62,18 @@ export default class QueryScript {
 		if (this.ifTransformationsExist && Object.keys(this.transformations).length !== 2) {
 			return false;
 		} // If transformations has more than two keys, return false
+		if (this.ifTransformationsExist) {
+			if (!this.validateTransformations(this.transformations)) {
+				return false;
+			}
+		}
 		if (!this.validateWhere(this.where)) {
 			return false;
 		}
 		if (!this.validateOptions(this.options)) {
 			return false;
 		}
-		return !(this.ifTransformationsExist && !this.validateTransformations(this.transformations));
+		return true;
 	}
 
 	public validateTransformations(transformations: any): boolean {
@@ -223,15 +230,21 @@ export default class QueryScript {
 			return false;
 		}
 
+		let groupKeys = new Set<string>();
+		if (this.ifTransformationsExist) {
+			groupKeys = new Set(this.transformations["GROUP"]);
+		}
+
 		for (let column of columns) {
 			let parts = column.split("_");
-			if (parts.length !== 2) {
-				return false;
-			}
-			let id = parts[0];
+			// if (parts.length !== 2) {
+			// 	return false;
+			// }
 			let field = parts[1];
 			if (!this.isValidField(field)) {
-				return false;
+				if (!groupKeys.has(column) && !this.applykeys.has(column)) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -282,7 +295,7 @@ export default class QueryScript {
 		if (!validApplyTokens.includes(applyToken)) {
 			return false;
 		}
-		if (["MAX","MIN","AVG","SUM"].includes(applyToken) && !this.isValidMField(field)) {
+		if (["MAX", "MIN", "AVG", "SUM"].includes(applyToken) && !this.isValidMField(field)) {
 			return false;
 		}
 		if (["COUNT"].includes(applyToken) && !this.isValidField(field)) {
