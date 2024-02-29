@@ -2,6 +2,7 @@ import {InsightError} from "./IInsightFacade";
 import JSZip from "jszip";
 import Sections from "./Sections";
 import InsightFacade from "./InsightFacade";
+import * as parse5 from "parse5";
 import Rooms from "./Rooms";
 
 export default class DatasetProcessor {
@@ -66,11 +67,82 @@ export default class DatasetProcessor {
 		return requiredFields.every((field) => field in section);
 	}
 
-	// Todo: implement this method
-	// need to use parse5 to parse the html file
-	// need to valid the room object
-	// may need to add helper function to parse the html file, it seem very complex
-	public async validateRooms(id: string, content: string): Promise<Sections[]> {
-		return Promise.reject(new InsightError("Not implemented"));
+	public async validateRooms(id: string, content: string): Promise<Rooms[]> {
+		try {
+			const zip = new JSZip();
+			const rawFile = await zip.loadAsync(content, {base64: true});
+
+			// 1: Get Index.htm
+			const indexHtmlContent = await this.extractIndexHtml(rawFile);
+
+			// 2: Validate Index.htm
+			if (this.validateIndexHTML(indexHtmlContent)) {
+
+				// 3: Extract valid building HTMLs
+				const buildingHtmls = await this.extractValidBuildingHtmls(rawFile);
+
+				// 4: Extract rooms from valid building HTMLs
+				const validRooms: Rooms[] = await this.extractRoomsFromBuildingHtmls(rawFile, buildingHtmls);
+				// 5: GEO location???
+
+				// 6: Store valid rooms in the dataset
+				if (validRooms.length === 0) {
+					return Promise.reject(new InsightError("No valid sections"));
+				}
+				await InsightFacade.writeFile(id, validRooms);
+				return Promise.resolve(validRooms);
+			} else {
+				return Promise.reject(new InsightError("Invalid index HTML"));
+			}
+		} catch (err) {
+			return Promise.reject(new InsightError("Error processing dataset"));
+		}
 	}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////HELPER FUNCTIONS/////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private async extractIndexHtml(rawFile: JSZip): Promise<string> {
+		// TODO: Extract index htm using parse 5
+		const indexHtmlFile = rawFile.file("index.htm");
+		if (!indexHtmlFile) {
+			throw new InsightError("Index.htm not found");
+		}
+		return await indexHtmlFile.async("text");
+	}
+
+	private validateIndexHTML(indexHtmlContent: string): boolean {
+		// TODO: validate extracted index htm
+		const document = parse5.parse(indexHtmlContent);
+
+		// find the correct table and validate building links
+		return true;
+	}
+
+	private async extractValidBuildingHtmls(rawFile: JSZip): Promise<string[]> {
+		// TODO: Extract valid building HTMLs, push them to an array
+		// ...
+		return [];
+	}
+
+	private async extractRoomsFromBuildingHtmls(rawFile: JSZip, buildingHtmls: string[]): Promise<Rooms[]> {
+		// TODO: takes a zip and array? find valid rooms and return them
+		const validRooms: Rooms[] = [];
+		// Loop through each valid building HTML
+			// Add valid rooms to the list
+		// need to call isValidRoom and extractRoomsFromBuilding
+		return validRooms;
+	}
+
+	private async extractRoomsFromBuilding(rawFile: JSZip, buildingHtmlFile: string): Promise<Rooms[]> {
+		// TODO: Implement the extraction for rooms from building HTML
+		return [];
+
+	}
+
+	private isValidRoom(room: Rooms): boolean {
+		// TODO: Implement the validation logic for a room
+		return true;
+	}
+
 }
