@@ -842,90 +842,21 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						AND: [
-							{
-								AND: [
-									{
-										LT: {
-											sections_avg: 90
-										}
-									},
-									{
-										EQ: {
-											sections_year: 1900
-										}
-									},
-									{
-										GT: {
-											sections_pass: 140
-										}
-									},
-									{
-										IS: {
-											sections_dept: "cpsc"
-										}
-									},
-									{
-										IS: {
-											sections_title: "**"
-										}
-									},
-									{
-										IS: {
-											sections_dept: "*c"
-										}
-									},
-									{
-										IS: {
-											sections_title: "i*"
-										}
-									},
-									{
-										IS: {
-											sections_title: "*"
-										}
-									}
-								]
-							},
-							{
-								OR: [
-									{
-										NOT: {
-											LT: {
-												sections_avg: 99
-											}
-										}
-									},
-									{
-										NOT: {
-											AND: [
-												{
-													LT: {
-														sections_fail: 4
-													}
-												},
-												{
-													IS: {
-														sections_instructor: "*d*"
-													}
-												}
-											]
-										}
-									}
-								]
-							}
-						]
+						GT: {
+							sections_avg: 98
+						}
 					},
 					OPTIONS: {
 						COLUMNS: [
-							"sections_dept",
 							"sections_title",
 							"overallAvg",
 							"overallPass",
-							"overallSum"
+							"overallSum",
+							"overallCount",
+							"overallMIN"
 						],
 						ORDER: {
-							dir: "UP",
+							dir: "DOWN",
 							keys: [
 								"overallPass",
 								"overallSum"
@@ -951,6 +882,16 @@ describe("InsightFacade", function () {
 							{
 								overallSum: {
 									SUM: "sections_pass"
+								}
+							},
+							{
+								overallCount: {
+									COUNT: "sections_title"
+								}
+							},
+							{
+								overallMIN: {
+									MIN: "sections_avg"
 								}
 							}
 						]
