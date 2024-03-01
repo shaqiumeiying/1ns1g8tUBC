@@ -1,0 +1,54 @@
+{
+	"title": "C2 Invalid Missing dir",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 98
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"overallAvg",
+				"overallPass",
+				"overallSum",
+				"overallCount"
+			],
+			"ORDER": {
+				"keys": [
+					"overallPass"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title",
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"overallAvg": {
+						"AVG": "sections_avg"
+					}
+				},
+				{
+					"overallPass": {
+						"MIN": "sections_pass"
+					}
+				},
+				{
+					"overallSum": {
+						"SUM": "sections_pass"
+					}
+				},
+				{
+					"overallCount": {
+						"COUNT": "sections_dept"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
