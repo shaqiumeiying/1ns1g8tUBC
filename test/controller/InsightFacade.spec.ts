@@ -234,16 +234,16 @@ describe("InsightFacade", function () {
 		it("should resolve with multiple room table with one valid in bldg.htm", async function () {
 			try {
 				const result = await facade.addDataset("validMoreRoomTable"
-					, validMoreRoomTable, InsightDatasetKind.Sections);
+					, validMoreRoomTable, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validMoreRoomTable"]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
 			}
 		});
 
-		it("should resolve with one valid building with on valid room table", async function () {
+		it("should resolve with one valid building with one valid room table", async function () {
 			try {
-				const result = await facade.addDataset("validOneBldg", validOneBldg, InsightDatasetKind.Sections);
+				const result = await facade.addDataset("validOneBldg", validOneBldg, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validOneBldg"]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
