@@ -48,6 +48,7 @@ describe("InsightFacade", function () {
 	// Below are the datasets used for Room test
 	let invalidBldgNoRoomTable: string;
 	let invalidBldgNotFound: string;
+	let invalidMoreBldgListTable: string;
 	let invalidMoreRoomTable: string;
 	let invalidNoGeo: string;
 	let invalidNoHref: string;
@@ -92,6 +93,7 @@ describe("InsightFacade", function () {
 		// Below are the ZIP files for addDataset Room tests
 		invalidBldgNoRoomTable = await getContentFromArchives("RoomInvalid_BldgNoRoomTable.zip");
 		invalidBldgNotFound = await getContentFromArchives("RoomInvalid_BldgNotFound.zip");
+		invalidMoreBldgListTable = await getContentFromArchives("RoomInvalid_MoreBldgListTable.zip");
 		invalidMoreRoomTable = await getContentFromArchives("RoomInvalid_MoreRoomTable.zip");
 		invalidNoGeo = await getContentFromArchives("RoomInvalid_NoGeo.zip");
 		invalidNoHref = await getContentFromArchives("RoomInvalid_NoHref.zip");
@@ -132,6 +134,15 @@ describe("InsightFacade", function () {
 				expect.fail("Should have rejected");
 			} catch (err) {
 				expect(err).to.be.instanceOf(NotFoundError);
+			}
+		});
+
+		it("should reject with multiple building tables but all are invalid", async function () {
+			try {
+				await facade.addDataset("invalidMoreBldgListTable", invalidMoreBldgListTable, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
 			}
 		});
 
