@@ -1,5 +1,5 @@
 {
-	"title": "C2 - AVG, MIN, SUM, GT, ORDERS - DOWN",
+	"title": "C2 - AVG, MIN, SUM, GT, COUNT, ORDERS - DOWN",
 	"input": {
 		"WHERE": {
 			"GT": {
@@ -11,7 +11,9 @@
 				"sections_title",
 				"overallAvg",
 				"overallPass",
-				"overallSum"
+				"overallSum",
+				"overallCount",
+				"overallMIN"
 			],
 			"ORDER": {
 				"dir": "DOWN",
@@ -41,6 +43,16 @@
 					"overallSum": {
 						"SUM": "sections_pass"
 					}
+				},
+				{
+					"overallCount": {
+						"COUNT": "sections_title"
+					}
+				},
+				{
+					"overallMIN": {
+						"MIN": "sections_avg"
+					}
 				}
 			]
 		}
@@ -51,55 +63,73 @@
 			"sections_title": "work int health",
 			"overallAvg": 98.98,
 			"overallPass": 82,
-			"overallSum": 164
+			"overallSum": 164,
+			"overallCount": 1,
+			"overallMIN": 98.98
 		},
 		{
 			"sections_title": "educ stds autism",
 			"overallAvg": 98.7,
 			"overallPass": 17,
-			"overallSum": 107
+			"overallSum": 107,
+			"overallCount": 1,
+			"overallMIN": 98.58
 		},
 		{
 			"sections_title": "career planning",
 			"overallAvg": 99.19,
 			"overallPass": 16,
-			"overallSum": 16
+			"overallSum": 16,
+			"overallCount": 1,
+			"overallMIN": 99.19
 		},
 		{
 			"sections_title": "cl pro prim care",
 			"overallAvg": 98.46,
 			"overallPass": 14,
-			"overallSum": 56
+			"overallSum": 56,
+			"overallCount": 1,
+			"overallMIN": 98.21
 		},
 		{
 			"sections_title": "fam nrs pract",
 			"overallAvg": 98.54,
 			"overallPass": 12,
-			"overallSum": 56
+			"overallSum": 56,
+			"overallCount": 1,
+			"overallMIN": 98.5
 		},
 		{
 			"sections_title": "multimedia sys",
 			"overallAvg": 98.75,
 			"overallPass": 12,
-			"overallSum": 24
+			"overallSum": 24,
+			"overallCount": 1,
+			"overallMIN": 98.75
 		},
 		{
 			"sections_title": "dev el sk df&hrd",
 			"overallAvg": 98.45,
 			"overallPass": 11,
-			"overallSum": 22
+			"overallSum": 22,
+			"overallCount": 1,
+			"overallMIN": 98.45
 		},
 		{
 			"sections_title": "assess lrn diffi",
 			"overallAvg": 98.38,
 			"overallPass": 10,
-			"overallSum": 44
+			"overallSum": 44,
+			"overallCount": 1,
+			"overallMIN": 98.08
 		},
 		{
 			"sections_title": "algb topology i",
 			"overallAvg": 99.78,
 			"overallPass": 9,
-			"overallSum": 18
+			"overallSum": 18,
+			"overallCount": 1,
+			"overallMIN": 99.78
 		}
 	]
 }

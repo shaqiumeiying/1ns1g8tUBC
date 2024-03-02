@@ -89,7 +89,8 @@ export default class DataTransformer {
 						calculatedValue = Math.max(...values);
 						break;
 					case "COUNT":
-						calculatedValue = values.length;
+						calculatedValue = new Set(values).size;
+						break;
 					case "SUM":
 						calculatedValue = Number(values.reduce((a: number, b: number) => a + b, 0).toFixed(2));
 						break;

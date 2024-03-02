@@ -1,0 +1,55 @@
+{
+	"title": "C2 Invalid TRANS Operator \"XOR\"",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 98
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"overallAvg",
+				"overallPass",
+				"overallSum",
+				"overallCount"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"overallPass"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title",
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"overallAvg": {
+						"AVG": "sections_avg"
+					}
+				},
+				{
+					"overallPass": {
+						"MIN": "sections_pass"
+					}
+				},
+				{
+					"overallSum": {
+						"SUM": "sections_pass"
+					}
+				},
+				{
+					"overallCount": {
+						"XOR": "sections_dept"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
