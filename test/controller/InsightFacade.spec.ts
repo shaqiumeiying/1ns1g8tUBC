@@ -133,7 +133,7 @@ describe("InsightFacade", function () {
 				await facade.addDataset("invalidBldgNotFound", invalidBldgNotFound, InsightDatasetKind.Rooms);
 				expect.fail("Should have rejected");
 			} catch (err) {
-				expect(err).to.be.instanceOf(NotFoundError);
+				expect(err).to.be.instanceOf(InsightError);
 			}
 		});
 
@@ -214,7 +214,7 @@ describe("InsightFacade", function () {
 		it("should resolve with multiple building table with one valid in index.htm", async function () {
 			try {
 				const result = await facade.addDataset("validMoreBldgListTable"
-					, validMoreBldgListTable, InsightDatasetKind.Sections);
+					, validMoreBldgListTable, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validMoreBldgListTable"]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
@@ -224,7 +224,7 @@ describe("InsightFacade", function () {
 		it("should resolve with multiple building.htm exists but only one linked to index", async function () {
 			try {
 				const result = await facade.addDataset("validMoreBldgOnlyOneLinked"
-					, validMoreBldgOnlyOneLinked, InsightDatasetKind.Sections);
+					, validMoreBldgOnlyOneLinked, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validMoreBldgOnlyOneLinked"]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
@@ -253,7 +253,7 @@ describe("InsightFacade", function () {
 		it("should resolve with valid room table with extra fields", async function () {
 			try {
 				const result = await facade.addDataset("validRoomMoreField"
-					, validRoomMoreField, InsightDatasetKind.Sections);
+					, validRoomMoreField, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validRoomMoreField"]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
@@ -263,7 +263,7 @@ describe("InsightFacade", function () {
 		it("should resolve with valid room table with td exist but empty", async function () {
 			try {
 				const result = await facade.addDataset("validTDCellExist"
-					, validTDCellExist, InsightDatasetKind.Sections);
+					, validTDCellExist, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validTDCellExist"]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
