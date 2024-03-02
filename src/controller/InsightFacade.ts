@@ -20,7 +20,7 @@ import Rooms from "./Rooms";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	private datasets: Map<string, Sections[]>;
+	private datasets: Map<string, Sections[] | Rooms[]>;
 	private isDataBeenLoadedIndicator: boolean;
 
 	constructor() {
@@ -130,7 +130,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	public static writeFile(id: string, content: Sections[]): Promise<any> {
+	public static writeFile(id: string, content: Sections[] | Rooms[]): Promise<any> {
 		let path = "data/" + id + ".json";
 		let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {

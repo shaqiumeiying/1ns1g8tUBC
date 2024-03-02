@@ -22,6 +22,7 @@ export interface ITestQuery {
 
 describe("InsightFacade", function () {
 	let facade: IInsightFacade;
+	// Below are the datasets used for Sections test
 	let noSection: string;
 	let noCourse: string;
 	let notJson: string;
@@ -42,9 +43,27 @@ describe("InsightFacade", function () {
 	let validOneSectionOneNotJson: string;
 	let oneOverAllSection: string;
 	let top5courses: string;
-
 	// Declare datasets used in tests. You should add more datasets like this!
 	let sections: string;
+	// Below are the datasets used for Room test
+	let invalidBldgNoRoomTable: string;
+	let invalidBldgNotFound: string;
+	let invalidMoreBldgListTable: string;
+	let invalidMoreRoomTable: string;
+	let invalidNoGeo: string;
+	let invalidNoHref: string;
+	let invalidNoIndex: string;
+	let invalidRoomMissingProperty: string;
+	let invalidTDCellDoesNotExist: string;
+	let invalidWrongFolder: string;
+	let validMoreBldgListTable: string;
+	let validMoreBldgOnlyOneLinked: string;
+	let validMoreRoomTable: string;
+	let validOneBldg: string;
+	let validRoomMoreField: string;
+	let validTDCellExist: string;
+
+	let rooms: string;
 
 	before(async function () {
 		// This block runs once and loads the datasets.
@@ -52,7 +71,7 @@ describe("InsightFacade", function () {
 		sections = await getContentFromArchives("pair.zip");
 		top5courses = await getContentFromArchives("top5Courses.zip");
 		oneOverAllSection = await getContentFromArchives("OneOverAllSection.zip");
-		// bottom are the ZIP files for addDataset tests
+		// Below are the ZIP files for addDataset Section tests
 		noSection = await getContentFromArchives("invalid_no_section.zip");
 		validCourses = await getContentFromArchives("valid_courses.zip");
 		validCourses2 = await getContentFromArchives("valid_courses2.zip");
@@ -71,6 +90,23 @@ describe("InsightFacade", function () {
 		validOneSection = await getContentFromArchives("valid_one_section.zip");
 		invalidNoRankKey = await getContentFromArchives("invalid_no_rank.zip");
 		validOneSectionOneNotJson = await getContentFromArchives("valid_one_set_one_notJson.zip");
+		// Below are the ZIP files for addDataset Room tests
+		invalidBldgNoRoomTable = await getContentFromArchives("RoomInvalid_BldgNoRoomTable.zip");
+		invalidBldgNotFound = await getContentFromArchives("RoomInvalid_BldgNotFound.zip");
+		invalidMoreBldgListTable = await getContentFromArchives("RoomInvalid_MoreBldgListTable.zip");
+		invalidMoreRoomTable = await getContentFromArchives("RoomInvalid_MoreRoomTable.zip");
+		invalidNoGeo = await getContentFromArchives("RoomInvalid_NoGeo.zip");
+		invalidNoHref = await getContentFromArchives("RoomInvalid_NoHref.zip");
+		invalidNoIndex = await getContentFromArchives("RoomInvalid_NoIndex.zip");
+		invalidRoomMissingProperty = await getContentFromArchives("RoomInvalid_RoomMissingProperty.zip");
+		invalidTDCellDoesNotExist = await getContentFromArchives("RoomInvalid_TDCellDoesNotExist.zip");
+		invalidWrongFolder = await getContentFromArchives("RoomInvalid_WrongFolder.zip");
+		validMoreBldgListTable = await getContentFromArchives("RoomValid_MoreBldgListTable.zip");
+		validMoreBldgOnlyOneLinked = await getContentFromArchives("RoomValid_MoreBldgOnlyOneLinked.zip");
+		validMoreRoomTable = await getContentFromArchives("RoomValid_MoreRoomTable.zip");
+		validOneBldg = await getContentFromArchives("RoomValid_OneBldg.zip");
+		validRoomMoreField = await getContentFromArchives("RoomValid_RoomMoreFiled.zip");
+		validTDCellExist = await getContentFromArchives("RoomValid_TDCellExist.zip");
 
 		// Just in case there is anything hanging around from a previous run of the test suite
 		await clearDisk();
@@ -83,8 +119,155 @@ describe("InsightFacade", function () {
 		afterEach(async function () {
 			await clearDisk();
 		});
-		it("should reject with a room kind, which do not have a index.htm file in root", async function () {
-			expect.fail("Should have rejected -- this just for template");
+		it("should reject with no room table in building", async function () {
+			try {
+				await facade.addDataset("invalidBldgNoRoomTable", invalidBldgNoRoomTable, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with an non exist building link", async function () {
+			try {
+				await facade.addDataset("invalidBldgNotFound", invalidBldgNotFound, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(NotFoundError);
+			}
+		});
+
+		it("should reject with multiple building tables but all are invalid", async function () {
+			try {
+				await facade.addDataset("invalidMoreBldgListTable", invalidMoreBldgListTable, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with multiple room tables but all are invalid", async function () {
+			try {
+				await facade.addDataset("invalidMoreRoomTable", invalidMoreRoomTable, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with no address for building", async function () {
+			try {
+				await facade.addDataset("invalidNoGeo", invalidNoGeo, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with no hyper links", async function () {
+			try {
+				await facade.addDataset("invalidNoHref", invalidNoHref, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with no index.htm", async function () {
+			try {
+				await facade.addDataset("invalidNoIndex", invalidNoIndex, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with room table missing important attributes", async function () {
+			try {
+				await facade.addDataset("invalidRoomMissingProperty"
+					, invalidRoomMissingProperty, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with room table missing have attributes but no td cell", async function () {
+			try {
+				await facade.addDataset("invalidTDCellDoesNotExist"
+					, invalidTDCellDoesNotExist, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should reject with bldg.htm in wrong places", async function () {
+			try {
+				await facade.addDataset("invalidWrongFolder", invalidWrongFolder, InsightDatasetKind.Rooms);
+				expect.fail("Should have rejected");
+			} catch (err) {
+				expect(err).to.be.instanceOf(InsightError);
+			}
+		});
+
+		it("should resolve with multiple building table with one valid in index.htm", async function () {
+			try {
+				const result = await facade.addDataset("validMoreBldgListTable"
+					, validMoreBldgListTable, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["validMoreBldgListTable"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
+
+		it("should resolve with multiple building.htm exists but only one linked to index", async function () {
+			try {
+				const result = await facade.addDataset("validMoreBldgOnlyOneLinked"
+					, validMoreBldgOnlyOneLinked, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["validMoreBldgOnlyOneLinked"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
+
+		it("should resolve with multiple room table with one valid in bldg.htm", async function () {
+			try {
+				const result = await facade.addDataset("validMoreRoomTable"
+					, validMoreRoomTable, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["validMoreRoomTable"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
+
+		it("should resolve with one valid building with on valid room table", async function () {
+			try {
+				const result = await facade.addDataset("validOneBldg", validOneBldg, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["validOneBldg"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
+
+		it("should resolve with valid room table with extra fields", async function () {
+			try {
+				const result = await facade.addDataset("validRoomMoreField"
+					, validRoomMoreField, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["validRoomMoreField"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
+
+		it("should resolve with valid room table with td exist but empty", async function () {
+			try {
+				const result = await facade.addDataset("validTDCellExist"
+					, validTDCellExist, InsightDatasetKind.Sections);
+				expect(result).to.deep.equal(["validTDCellExist"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
 		});
 	});
 
