@@ -52,7 +52,7 @@ export default class QueryExecutor {
 		return Promise.resolve(unsortedData);
 	}
 
-	private executeWhere(query: any, data: Sections[], id: string): Sections[] {
+	private executeWhere(query: any, data: any, id: string): any {
 		const keys = Object.keys(query);
 		if (keys.length === 0) {
 			return data;
@@ -76,7 +76,7 @@ export default class QueryExecutor {
 	}
 
 	// Todo: this implementation is not correct, test with "" and "**" not working
-	private executeSCOMPARISON(filterValue: any, data: Sections[], id: string): Sections[] {
+	private executeSCOMPARISON(filterValue: any, data: any, id: string): Sections[] | Rooms[] {
 		const key = Object.keys(filterValue)[0];
 		const field = key.split("_")[1];
 		const value = filterValue[key];
@@ -93,19 +93,20 @@ export default class QueryExecutor {
 		});
 	}
 
-	private executeMCOMPARISON(filterKey: string, filterValue: any, data: Sections[], id: string): Sections[] {
+	private executeMCOMPARISON(filterKey: string, filterValue: any
+		, data: any, id: string): Sections[]  | Rooms[] {
 		const key = Object.keys(filterValue)[0];
 		const field = key.split("_")[1];
 		const value = filterValue[key];
 
-		return data.filter((section: Sections) => {
+		return data.filter((type: any) => {
 			switch (filterKey) {
 				case "EQ":
-					return section[field as keyof Sections] === value;
+					return type[field as keyof any] === value;
 				case "GT":
-					return section[field as keyof Sections] > value;
+					return type[field as keyof any] > value;
 				case "LT":
-					return section[field as keyof Sections] < value;
+					return type[field as keyof any] < value;
 				default:
 					throw new InsightError();
 			}
@@ -166,16 +167,16 @@ export default class QueryExecutor {
 		return result;
 	}
 
-	private executeAND(filterArray: any, data: Sections[], id: string): Sections[] {
+	private executeAND(filterArray: any, data: any, id: string): Sections[] | Rooms[]{
 		return filterArray.reduce((prevFilter: any, currentFilter: any) => {
 			let keys = Object.keys(currentFilter);
-			let newFilter = new Set(this.executeWhere({[keys[0]]: currentFilter[keys[0]]}, data, id));
+			let newFilter: Set<any> = new Set(this.executeWhere({[keys[0]]: currentFilter[keys[0]]}, data, id));
 			return prevFilter.filter((section: any) => newFilter.has(section));
 		}, data);
 	}
 
-	private executeOR(filterArray: any, data: Sections[], id: string): Sections[] {
-		let result: Sections[] = [];
+	private executeOR(filterArray: any, data: Sections[]| Rooms[], id: string): Sections[]| Rooms[] {
+		let result: any[] = [];
 		filterArray.forEach((filter: any) => {
 			let keys = Object.keys(filter);
 			let newFilter = this.executeWhere({[keys[0]]: filter[keys[0]]}, data, id);
@@ -184,8 +185,8 @@ export default class QueryExecutor {
 		return result;
 	}
 
-	private executeNEGATION(filter: any, data: Sections[], id: string): Sections[] {
-		let result = this.executeWhere(filter, data, id);
-		return data.filter((section) => !result.includes(section));
+	private executeNEGATION(filter: any, data: any, id: string): Sections[]| Rooms[] {
+		let result: any[] = this.executeWhere(filter, data, id);
+		return data.filter((type: any) => !result.includes(type));
 	}
 }

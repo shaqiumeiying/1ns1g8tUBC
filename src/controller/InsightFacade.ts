@@ -13,6 +13,7 @@ import Sections from "./Sections";
 import QueryScript from "./QueryScript";
 import QueryExecutor from "./QueryExecutor";
 import Rooms from "./Rooms";
+import RoomProcessor from "./RoomProcessor";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -25,7 +26,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	constructor() {
 		// keep track of valid datasets
-		this.datasets = new Map<string, Sections[]>();
+		this.datasets = new Map<string, Sections[] | Rooms[]>();
 		this.isDataBeenLoadedIndicator = false;
 	}
 
@@ -45,6 +46,7 @@ export default class InsightFacade implements IInsightFacade {
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		return this.checkIfDataHasBeenLoaded().then(() => {
 			const dp = new DatasetProcessor();
+			const rp = new RoomProcessor();
 			if (id === null || id === "" || id.trim().length === 0 || id.includes("_")) {
 				return Promise.reject(new InsightError("id is null or empty"));
 			}
@@ -58,7 +60,7 @@ export default class InsightFacade implements IInsightFacade {
 					return Promise.resolve(list);
 				});
 			} else if (kind === InsightDatasetKind.Rooms) {
-				return dp.validateRooms(id, content).then((result) => {
+				return rp.validateRooms(id, content).then((result) => {
 					this.datasets.set(id, result);
 					let list: string[] = Array.from(this.datasets.keys());
 					return Promise.resolve(list);
@@ -121,7 +123,7 @@ export default class InsightFacade implements IInsightFacade {
 			this.datasets.forEach((value, key) => {
 				let info: InsightDataset = {
 					id: key,
-					kind: InsightDatasetKind.Sections,
+					kind: InsightDatasetKind.Sections || InsightDatasetKind.Rooms,
 					numRows: value.length,
 				};
 				result.push(info);

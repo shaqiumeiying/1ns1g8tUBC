@@ -62,6 +62,7 @@ describe("InsightFacade", function () {
 	let validOneBldg: string;
 	let validRoomMoreField: string;
 	let validTDCellExist: string;
+	let smallTest: string;
 
 	let rooms: string;
 
@@ -107,6 +108,7 @@ describe("InsightFacade", function () {
 		validOneBldg = await getContentFromArchives("RoomValid_OneBldg.zip");
 		validRoomMoreField = await getContentFromArchives("RoomValid_RoomMoreFiled.zip");
 		validTDCellExist = await getContentFromArchives("RoomValid_TDCellExist.zip");
+		smallTest = await getContentFromArchives("small test.zip");
 
 		// Just in case there is anything hanging around from a previous run of the test suite
 		await clearDisk();
@@ -265,6 +267,16 @@ describe("InsightFacade", function () {
 				const result = await facade.addDataset("validTDCellExist"
 					, validTDCellExist, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validTDCellExist"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
+
+		it("should resolve small test", async function () {
+			try {
+				const result = await facade.addDataset("validSmall"
+					, smallTest, InsightDatasetKind.Rooms);
+				expect(result).to.deep.equal(["validSmall"]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
 			}
