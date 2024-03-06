@@ -76,37 +76,41 @@ export default class QueryExecutor {
 	}
 
 	// Todo: this implementation is not correct, test with "" and "**" not working
-	private executeSCOMPARISON(filterValue: any, data: any, id: string): Sections[] | Rooms[] {
+	private extractFieldAndValue(filterValue: any): {field: string; value: any} {
 		const key = Object.keys(filterValue)[0];
 		const field = key.split("_")[1];
 		const value = filterValue[key];
+
+		return {field, value};
+	}
+
+	private executeSCOMPARISON(filterValue: any, data: any, id: string): Sections[] | Rooms[] {
+		const result = this.extractFieldAndValue(filterValue);
 		// Handle blank and double asterisk cases
-		if (value === "") {
-			return data.filter((section: Sections) => String(section[field as keyof Sections]) === "");
-		} else if (value === "**") {
+		if (result.value === "") {
+			return data.filter((section: Sections) => String(section[result.field as keyof Sections]) === "");
+		} else if (result.value === "**") {
 			return data; // return all data if filterValue is "**"
 		}
-		const regex = "^" + value.split("*").join(".*") + "$";
+		const regex = "^" + result.value.split("*").join(".*") + "$";
 		const regExp = new RegExp(regex);
 		return data.filter((section: Sections) => {
-			return regExp.test(String(section[field as keyof Sections]));
+			return regExp.test(String(section[result.field as keyof Sections]));
 		});
 	}
 
 	private executeMCOMPARISON(filterKey: string, filterValue: any
 		, data: any, id: string): Sections[]  | Rooms[] {
-		const key = Object.keys(filterValue)[0];
-		const field = key.split("_")[1];
-		const value = filterValue[key];
+		const result = this.extractFieldAndValue(filterValue);
 
 		return data.filter((type: any) => {
 			switch (filterKey) {
 				case "EQ":
-					return type[field as keyof any] === value;
+					return type[result.field as keyof any] === result.value;
 				case "GT":
-					return type[field as keyof any] > value;
+					return type[result.field as keyof any] > result.value;
 				case "LT":
-					return type[field as keyof any] < value;
+					return type[result.field as keyof any] < result.value;
 				default:
 					throw new InsightError();
 			}

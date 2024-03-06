@@ -7,6 +7,8 @@ export default class QueryScript {
 	private transformations: any;
 	private ifTransformationsExist: boolean;
 	private applykeys: Set<string>;
+	private isMField: string[];
+	private validFields: string[];
 
 	constructor(query: any) {
 		this.ifTransformationsExist = this.CheckIfTransformationsExist(query);
@@ -21,6 +23,8 @@ export default class QueryScript {
 		this.id = new Set([...whereIds, ...optionIds]);
 		this.where = query["WHERE"];
 		this.options = query["OPTIONS"];
+		this.isMField = ["avg", "pass", "fail", "audit", "year"];
+		this.validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
 	}
 
 	private CheckIfTransformationsExist(query: any): boolean {
@@ -85,7 +89,7 @@ export default class QueryScript {
 				return false;
 			}
 			let field = item.split("_")[1];
-			if (!this.isValidField(field)) {
+			if (!this.validFields.includes(field)) {
 				return false;
 			}
 		}
@@ -112,7 +116,7 @@ export default class QueryScript {
 				return false;
 			}
 			let field = key.split("_")[1];
-			if (!this.isValidField(field) || !this.isValidApplyToken(applyToken, field)) {
+			if (!this.validFields.includes(field) || !this.isValidApplyToken(applyToken, field)) {
 				return false;
 			}
 		}
@@ -163,16 +167,11 @@ export default class QueryScript {
 		const object = Object.keys(key)[0];
 		const field = object.split("_")[1];
 		const number = key[object];
-		if (!this.isValidMField(field) || typeof number !== "number") {
+		if (!this.isMField.includes(field) || typeof number !== "number") {
 			return false;
 		}
 
 		return true;
-	}
-
-	private isValidMField(field: string): boolean {
-		const validFields = ["avg", "pass", "fail", "audit", "year"];
-		return validFields.includes(field);
 	}
 
 	public validateSComparison(sComparison: any): boolean {
@@ -237,11 +236,8 @@ export default class QueryScript {
 
 		for (let column of columns) {
 			let parts = column.split("_");
-			// if (parts.length !== 2) {
-			// 	return false;
-			// }
 			let field = parts[1];
-			if (!this.isValidField(field)) {
+			if (!this.validFields.includes(field)) {
 				if (!groupKeys.has(column) && !this.applykeys.has(column)) {
 					return false;
 				}
@@ -258,7 +254,7 @@ export default class QueryScript {
 			}
 			let id = parts[0];
 			let field = parts[1];
-			if (!this.isValidField(field)) {
+			if (!this.validFields.includes(field)) {
 				return false;
 			}
 			if (!columns.includes(order)) {
@@ -285,20 +281,15 @@ export default class QueryScript {
 		return false;
 	}
 
-	private isValidField(field: string): boolean {
-		const validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
-		return validFields.includes(field);
-	}
-
 	private isValidApplyToken(applyToken: string, field: string): boolean {
 		const validApplyTokens = ["MAX", "MIN", "AVG", "SUM", "COUNT"];
 		if (!validApplyTokens.includes(applyToken)) {
 			return false;
 		}
-		if (["MAX", "MIN", "AVG", "SUM"].includes(applyToken) && !this.isValidMField(field)) {
+		if (["MAX", "MIN", "AVG", "SUM"].includes(applyToken) && !this.isMField.includes(field)) {
 			return false;
 		}
-		if (["COUNT"].includes(applyToken) && !this.isValidField(field)) {
+		if (["COUNT"].includes(applyToken) && !this.validFields.includes(field)) {
 			return false;
 		}
 		return true;
