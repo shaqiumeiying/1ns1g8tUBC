@@ -3,12 +3,20 @@ import JSZip from "jszip";
 import {InsightError} from "./IInsightFacade";
 import InsightFacade from "./InsightFacade";
 import * as parse5 from "parse5";
-import * as fs from "fs";
+import BuildingsAndRoomsParser from "./BuildingsAndRoomsParser";
 
 export default class RoomProcessor {
-	private validBldgTable: any[] = [];
-	private validRoomTable: any[] = [];
+	public static BldgFields: string[] = ["views-field views-field-field-building-code",
+		"views-field views-field-title", "views-field views-field-field-building-address"];
+
+	public static RoomFields: string[] = ["views-field views-field-field-room-number",
+		"views-field views-field-field-room-capacity", "views-field views-field-field-room-furniture",
+		"views-field views-field-field-room-type"];
+
+	public validBldgTable: any[] = [];
+	public validRoomTable: any[] = [];
 	public async validateRooms(id: string, content: string): Promise<Rooms[]> {
+		const brp = new BuildingsAndRoomsParser();
 		try {
 			const zip = new JSZip();
 			const rawFile = await zip.loadAsync(content, {base64: true});
@@ -22,18 +30,18 @@ export default class RoomProcessor {
 				const buildingHtmls = await this.extractValidBuildingHtmls(this.validBldgTable, rawFile);
 
 				// 4: Extract rooms from valid building HTMLs
-				const validRooms: Rooms[] = await this.extractRoomsFromBuildingHtmls(rawFile, buildingHtmls);
+				this.validRoomTable = await this.extractRoomsFromBuildingHtmls(rawFile, buildingHtmls);
 				// console.log(this.validBldgTable);
 				// console.log(this.validRoomTable);
-				// 5: GEO location???
+				if (this.validBldgTable.length === 0 || this.validRoomTable.length === 0) {
+					return Promise.reject(new InsightError("No valid building or room table found"));
+				}
 
 				// 6: Store valid rooms in the dataset
-				if (validRooms.length === 0) {
-					return Promise.reject(new InsightError("No valid sections"));
-				}
+				const roomJSON = await brp.makeRooms(this.validBldgTable, this.validRoomTable);
 				// start pushing fragments of data into rooms datatype
-				await InsightFacade.writeFile(id, validRooms);
-				return Promise.resolve(validRooms);
+				await InsightFacade.writeFile(id, roomJSON);
+				return Promise.resolve(roomJSON);
 			} else {
 				return Promise.reject(new InsightError("Invalid index HTML"));
 			}
@@ -52,14 +60,8 @@ export default class RoomProcessor {
 
 	private validateIndexHTML(indexHtmlContent: string) {
 		const document = parse5.parse(indexHtmlContent);
-		const buildingTable = this.findValidBuildingTable(document);
+		const buildingTable = this.findTableWithCells(document,RoomProcessor.BldgFields);
 		return !!buildingTable;
-	}
-
-	private findValidBuildingTable(document: any): any | null {
-		const requiredClasses = ["views-field views-field-field-building-code",
-			"views-field views-field-title", "views-field views-field-field-building-address"];
-		return this.findTableWithCells(document, requiredClasses);
 	}
 
 	private findTableWithCells(node: any, requiredClasses: string[]): any | null {
@@ -107,12 +109,18 @@ export default class RoomProcessor {
 
 		for (const cn of node.childNodes) {
 			if (cn.nodeName === "tr") {
+				const cleanedChildNodes = cn.childNodes.filter((childNode: any) => {
+					// Exclude td elements with class "#text"
+					return !(childNode.nodeName === "#text");
+				});
+
 				tableDocument.push({
 					nodeName: "tr",
-					childNodes: cn.childNodes
+					childNodes: cleanedChildNodes
 				});
 			}
 		}
+
 		return tableDocument;
 	}
 
@@ -168,7 +176,7 @@ export default class RoomProcessor {
 	}
 
 	private async extractRoomsFromBuildingHtmls(rawFile: JSZip, buildingHtmls: string[]): Promise<any[]> {
-		const validRooms: Rooms[] = [];
+		const validRooms: any[] = [];
 		const path = "campus/discover/buildings-and-classrooms/";
 		const promises = buildingHtmls.map(async (shortName) => {
 			const filePath = `${path}${shortName}.htm`; // push b into each room tr
@@ -176,32 +184,23 @@ export default class RoomProcessor {
 			if (fileEntry) {
 				const buildingHtmlContent = await fileEntry.async("text");
 				const document = parse5.parse(buildingHtmlContent);
-				const roomTable = this.findValidRoomTable(document, shortName);
+				const roomTable = this.findRoomTableWithCells(document, RoomProcessor.RoomFields, shortName);
 
 				if (roomTable) {
 					return roomTable;
 				} else {
-					throw new Error(`Valid room table not found for ${filePath}`);
+					return null;
 				}
-			} else {
-				throw new Error(`File entry not found for ${filePath}`);
 			}
 		});
 		try {
 			const results = await Promise.all(promises);
 			validRooms.push(...results.flat().filter((room) => room !== null));
 			// console.log(validRooms);
-			return this.validRoomTable = validRooms;
+			return validRooms;
 		} catch (err) {
 			return Promise.reject(err);
 		}
-	}
-
-	private findValidRoomTable(document: any, shortName: string): any | null {
-		const requiredClasses = ["views-field views-field-field-room-number",
-			"views-field views-field-field-room-capacity", "views-field views-field-field-room-furniture",
-			"views-field views-field-field-room-type"];
-		return this.findRoomTableWithCells(document, requiredClasses, shortName);
 	}
 
 	private findRoomTableWithCells(node: any, requiredClasses: string[], shortName: string): any | null {
@@ -225,10 +224,14 @@ export default class RoomProcessor {
 
 		for (const cn of node.childNodes) {
 			if (cn.nodeName === "tr") {
+				const cleanedChildNodes = cn.childNodes.filter((childNode: any) => {
+					// Exclude td elements with class "#text"
+					return !(childNode.nodeName === "#text");
+				});
 				tableDocument.push({
 					nodeName: "tr",
 					shortName: shortName,
-					childNodes: cn.childNodes
+					childNodes: cleanedChildNodes
 				});
 			}
 		}

@@ -272,13 +272,13 @@ describe("InsightFacade", function () {
 			}
 		});
 
-		it("should resolve small test", async function () {
+		it("should reject small test with all invalid geo locations for building", async function () {
 			try {
 				const result = await facade.addDataset("validSmall"
 					, smallTest, InsightDatasetKind.Rooms);
-				expect(result).to.deep.equal(["validSmall"]);
+				expect.fail("Should have rejected");
 			} catch (err) {
-				expect.fail("Should have fulfilled");
+				expect(err).to.be.instanceOf(InsightError);
 			}
 		});
 	});
