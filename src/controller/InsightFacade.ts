@@ -132,7 +132,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	public static writeFile(id: string, content: Sections[] | Rooms[]): Promise<any> {
+	public static writeFile(id: string, content: any): Promise<any> {
 		let path = "data/" + id + ".json";
 		let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {
