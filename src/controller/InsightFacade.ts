@@ -120,13 +120,23 @@ export default class InsightFacade implements IInsightFacade {
 	public async listDatasets(): Promise<InsightDataset[]> {
 		return this.checkIfDataHasBeenLoaded().then(() => {
 			let result: InsightDataset[] = [];
-			this.datasets.forEach((value, key) => {
-				let info: InsightDataset = {
-					id: key,
-					kind: InsightDatasetKind.Sections || InsightDatasetKind.Rooms,
-					numRows: value.length,
-				};
-				result.push(info);
+			this.datasets.forEach((value: Sections[] | Rooms[], key) => {
+				const element = value[0];
+				if (this.isSectionsObject(element)) {
+					let info: InsightDataset = {
+						id: key,
+						kind: InsightDatasetKind.Sections,
+						numRows: value.length,
+					};
+					result.push(info);
+				} else {
+					let info: InsightDataset = {
+						id: key,
+						kind: InsightDatasetKind.Rooms,
+						numRows: value.length,
+					};
+					result.push(info);
+				}
 			});
 			return Promise.resolve(result);
 		});
@@ -163,5 +173,10 @@ export default class InsightFacade implements IInsightFacade {
 		} catch (error) {
 			throw new InsightError("Failed to read the processed folder or file");
 		}
+	}
+
+	private isSectionsObject(obj: any): boolean {
+		return "title" in obj && "uuid" in obj && "instructor" in obj && "dept" in obj && "year" in obj &&
+			"avg" in obj && "id" in obj && "pass" in obj && "fail" in obj && "audit" in obj;
 	}
 }

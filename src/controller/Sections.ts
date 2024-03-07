@@ -1,4 +1,4 @@
-import {InsightResult} from "./IInsightFacade";
+import {InsightDatasetKind, InsightResult} from "./IInsightFacade";
 export default class Sections {
 	private readonly title: string;
 	private readonly uuid: string;
@@ -72,5 +72,9 @@ export default class Sections {
 			section["audit"] = nameIt["Audit"];
 		}
 		return section;
+	}
+
+	public getKind(): InsightDatasetKind {
+		return InsightDatasetKind.Sections;
 	}
 }

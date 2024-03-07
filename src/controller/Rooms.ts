@@ -1,3 +1,5 @@
+import {InsightDatasetKind} from "./IInsightFacade";
+
 export default class Rooms {
 	private readonly fullName: string;
 	private readonly shortName: string;
@@ -35,5 +37,9 @@ export default class Rooms {
 		this.type = type;
 		this.furniture = furniture;
 		this.href = href;
+	}
+
+	public getKind(): InsightDatasetKind {
+		return InsightDatasetKind.Rooms;
 	}
 }
