@@ -228,6 +228,13 @@ describe("InsightFacade", function () {
 				const result = await facade.addDataset("validMoreBldgOnlyOneLinked"
 					, validMoreBldgOnlyOneLinked, InsightDatasetKind.Rooms);
 				expect(result).to.deep.equal(["validMoreBldgOnlyOneLinked"]);
+				const result2 = await facade.listDatasets();
+				expect(result2).to.have.length(1);
+				expect(result2).to.deep.equal([{
+					id: "validMoreBldgOnlyOneLinked",
+					kind: InsightDatasetKind.Rooms,
+					numRows: 1
+				}]);
 			} catch (err) {
 				expect.fail("Should have fulfilled");
 			}
