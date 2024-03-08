@@ -1,0 +1,42 @@
+{
+	"title": "Valid Room Query Check href",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/AERL-120"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"rooms_fullname",
+				"rooms_number",
+				"rooms_name",
+				"rooms_address",
+				"rooms_lat",
+				"rooms_lon",
+				"rooms_seats",
+				"rooms_type",
+				"rooms_furniture",
+				"rooms_href"
+			],
+			"ORDER": "rooms_seats"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_shortname": "AERL",
+			"rooms_fullname": "Aquatic Ecosystems Research Laboratory",
+			"rooms_number": "120",
+			"rooms_name": "AERL_120",
+			"rooms_address": "2202 Main Mall",
+			"rooms_lat": 49.26372,
+			"rooms_lon": -123.25099,
+			"rooms_seats": 144,
+			"rooms_type": "Tiered Large Group",
+			"rooms_furniture": "Classroom-Fixed Tablets",
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/AERL-120"
+		}
+	]
+}
