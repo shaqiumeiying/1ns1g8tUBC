@@ -144,7 +144,6 @@ export default class QueryScript {
 				!this.validateWhere(where[key]) ||
 				Object.keys(where[key]).length === 0
 			) {
-				console.log(where[key].length);
 				return false;
 			}
 		} else if (key === "LT" || key === "GT" || key === "EQ") {
