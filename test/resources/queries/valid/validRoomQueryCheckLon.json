@@ -1,0 +1,52 @@
+{
+	"title": "Valid Room Query Check lon",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"rooms_lon": -123.24807
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"rooms_fullname",
+				"rooms_number",
+				"rooms_href"
+			],
+			"ORDER": "rooms_number"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_shortname": "DMP",
+			"rooms_fullname": "Hugh Dempster Pavilion",
+			"rooms_number": "101",
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/DMP-101"
+		},
+		{
+			"rooms_shortname": "DMP",
+			"rooms_fullname": "Hugh Dempster Pavilion",
+			"rooms_number": "110",
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/DMP-110"
+		},
+		{
+			"rooms_shortname": "DMP",
+			"rooms_fullname": "Hugh Dempster Pavilion",
+			"rooms_number": "201",
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/DMP-201"
+		},
+		{
+			"rooms_shortname": "DMP",
+			"rooms_fullname": "Hugh Dempster Pavilion",
+			"rooms_number": "301",
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/DMP-301"
+		},
+		{
+			"rooms_shortname": "DMP",
+			"rooms_fullname": "Hugh Dempster Pavilion",
+			"rooms_number": "310",
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/DMP-310"
+		}
+	]
+}

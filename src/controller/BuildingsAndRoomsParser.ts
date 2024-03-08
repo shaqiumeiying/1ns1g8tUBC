@@ -114,7 +114,6 @@ export default class BuildingsAndRoomsParser {
 	}
 
 	public async makeRooms(buildingTable: any[], roomTable: any[]): Promise<Rooms[]> {
-
 		const CleanedBuildings = await this.findBuildingInfo(buildingTable);
 		const CleanedRooms = await this.findRoomInfo(roomTable);
 		if (CleanedBuildings.length === 0 || CleanedRooms.length === 0) {
@@ -127,6 +126,12 @@ export default class BuildingsAndRoomsParser {
 			const matchingRooms = CleanedRooms.filter((r) => r.shortname === building.shortname);
 
 			for (const matchingRoom of matchingRooms) {
+				let href = building.href;
+				href = href.replace(/^\./, ""); // Remove the '.' at the start
+				href = "http://students.ubc.ca" + href; // Add the base URL at the start
+				href = href.substring(0, href.lastIndexOf("/"))
+					+ "/room/" + building.shortname + "-" + matchingRoom.number;
+
 				const combinedInfo = new Rooms(
 					building.fullname,
 					building.shortname,
@@ -138,7 +143,7 @@ export default class BuildingsAndRoomsParser {
 					parseInt(matchingRoom.seats, 10),
 					matchingRoom.type,
 					matchingRoom.furniture,
-					building.href
+					href
 				);
 
 				room.push(combinedInfo);

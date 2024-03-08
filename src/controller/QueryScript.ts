@@ -190,7 +190,7 @@ export default class QueryScript {
 		}
 		// This line of code for regex is referenced from: https://stackoverflow.com/questions/10868308/regular-expression-a-za-z0-9
 		// Updated regex to allow for blank strings and strings with only asterisks
-		const regex = /^(\*)?[a-zA-Z0-9]*(\*)?$/;
+		const regex = /^(\*)?[^*]*(\*)?$/;
 		if (!regex.test(string)) {
 			return false;
 		}
