@@ -23,8 +23,9 @@ export default class QueryScript {
 		this.id = new Set([...whereIds, ...optionIds]);
 		this.where = query["WHERE"];
 		this.options = query["OPTIONS"];
-		this.isMField = ["avg", "pass", "fail", "audit", "year"];
-		this.validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
+		this.isMField = ["avg", "pass", "fail", "audit", "year", "lat", "lon", "seats"];
+		this.validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid",
+			"fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type", "furniture", "href"];
 	}
 
 	private CheckIfTransformationsExist(query: any): boolean {
@@ -143,7 +144,6 @@ export default class QueryScript {
 				!this.validateWhere(where[key]) ||
 				Object.keys(where[key]).length === 0
 			) {
-				console.log(where[key].length);
 				return false;
 			}
 		} else if (key === "LT" || key === "GT" || key === "EQ") {
@@ -205,7 +205,8 @@ export default class QueryScript {
 	}
 
 	private isValidSField(field: string): boolean {
-		const validFields = ["dept", "id", "instructor", "title", "uuid"];
+		const validFields = ["dept", "id", "instructor", "title", "uuid"
+			, "fullname", "shortname", "number", "name", "address", "type", "furniture", "href"];
 		return validFields.includes(field);
 	}
 
@@ -286,8 +287,12 @@ export default class QueryScript {
 		if (!validApplyTokens.includes(applyToken)) {
 			return false;
 		}
-		if (["MAX", "MIN", "AVG", "SUM"].includes(applyToken) && !this.isMField.includes(field)) {
-			return false;
+		if (["MAX", "MIN", "AVG", "SUM"].includes(applyToken)) {
+			if (!this.isMField.includes(field)) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 		if (["COUNT"].includes(applyToken) && !this.validFields.includes(field)) {
 			return false;

@@ -63,6 +63,7 @@ describe("InsightFacade", function () {
 	let validRoomMoreField: string;
 	let validTDCellExist: string;
 	let smallTest: string;
+	let campus: string;
 
 	let rooms: string;
 
@@ -109,6 +110,7 @@ describe("InsightFacade", function () {
 		validRoomMoreField = await getContentFromArchives("RoomValid_RoomMoreFiled.zip");
 		validTDCellExist = await getContentFromArchives("RoomValid_TDCellExist.zip");
 		smallTest = await getContentFromArchives("small test.zip");
+		campus = await getContentFromArchives("campus.zip");
 
 		// Just in case there is anything hanging around from a previous run of the test suite
 		await clearDisk();
@@ -1026,6 +1028,7 @@ describe("InsightFacade", function () {
 				await facade.addDataset("sections", sections, InsightDatasetKind.Sections),
 				await facade.addDataset("top5courses", top5courses, InsightDatasetKind.Sections),
 				await facade.addDataset("one overall", oneOverAllSection, InsightDatasetKind.Sections),
+				await facade.addDataset("rooms", campus, InsightDatasetKind.Rooms),
 			];
 
 			try {
@@ -1044,56 +1047,39 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						GT: {
-							sections_avg: 98
-						}
+						AND: [
+							{
+								IS: {
+									rooms_furniture: "*Tables*"
+								}
+							},
+							{
+								GT: {
+									rooms_seats: 300
+								}
+							}
+						]
 					},
 					OPTIONS: {
 						COLUMNS: [
-							"sections_title",
-							"overallAvg",
-							"overallPass",
-							"overallSum",
-							"overallCount",
-							"overallMIN"
+							"rooms_shortname",
+							"maxSeats"
 						],
 						ORDER: {
 							dir: "DOWN",
 							keys: [
-								"overallPass",
-								"overallSum"
+								"maxSeats"
 							]
 						}
 					},
 					TRANSFORMATIONS: {
 						GROUP: [
-							"sections_title",
-							"sections_dept"
+							"rooms_shortname"
 						],
 						APPLY: [
 							{
-								overallAvg: {
-									AVG: "sections_avg"
-								}
-							},
-							{
-								overallPass: {
-									MIN: "sections_pass"
-								}
-							},
-							{
-								overallSum: {
-									SUM: "sections_pass"
-								}
-							},
-							{
-								overallCount: {
-									COUNT: "sections_title"
-								}
-							},
-							{
-								overallMIN: {
-									MIN: "sections_avg"
+								maxSeats: {
+									MAX: "rooms_seats"
 								}
 							}
 						]

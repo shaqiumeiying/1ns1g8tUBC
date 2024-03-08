@@ -21,7 +21,8 @@ export default class QueryExecutor {
 	constructor(query: any, datasets: Map<string, any[]>) {
 		this.query = query;
 		this.datasets = datasets;
-		this.NotAnykeysFields = ["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year"];
+		this.NotAnykeysFields = ["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year",
+			"fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type", "furniture", "href"];
 	}
 
 	public executeQuery(IdMain: string, WhereMain: any, OptionsMain: any, TransMain: any): Promise<InsightResult[]> {

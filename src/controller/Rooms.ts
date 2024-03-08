@@ -1,8 +1,8 @@
 import {InsightDatasetKind} from "./IInsightFacade";
 
 export default class Rooms {
-	private readonly fullName: string;
-	private readonly shortName: string;
+	private readonly fullname: string;
+	private readonly shortname: string;
 	private readonly number: string;
 	private readonly name: string;
 	private readonly address: string;
@@ -14,8 +14,8 @@ export default class Rooms {
 	private readonly href: string;
 
 	constructor(
-		fullName: string,
-		shortName: string,
+		fullname: string,
+		shortname: string,
 		number: string,
 		name: string,
 		address: string,
@@ -26,8 +26,8 @@ export default class Rooms {
 		furniture: string,
 		href: string
 	) {
-		this.fullName = fullName;
-		this.shortName = shortName;
+		this.fullname = fullname;
+		this.shortname = shortname;
 		this.number = number;
 		this.name = name;
 		this.address = address;

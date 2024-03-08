@@ -31,8 +31,6 @@ export default class RoomProcessor {
 
 				// 4: Extract rooms from valid building HTMLs
 				this.validRoomTable = await this.extractRoomsFromBuildingHtmls(rawFile, buildingHtmls);
-				// console.log(this.validBldgTable);
-				// console.log(this.validRoomTable);
 				if (this.validBldgTable.length === 0 || this.validRoomTable.length === 0) {
 					return Promise.reject(new InsightError("No valid building or room table found"));
 				}
@@ -163,7 +161,6 @@ export default class RoomProcessor {
 			}));
 
 			const validFiles = allFiles.filter((fileName) => fileName !== null) as string[];
-			// console.log(validFiles);
 
 			if (validFiles.length > 0) {
 				return validFiles;
@@ -196,7 +193,6 @@ export default class RoomProcessor {
 		try {
 			const results = await Promise.all(promises);
 			validRooms.push(...results.flat().filter((room) => room !== null));
-			// console.log(validRooms);
 			return validRooms;
 		} catch (err) {
 			return Promise.reject(err);
