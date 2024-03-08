@@ -1,0 +1,36 @@
+{
+	"title": "Valid Room Query Max lon",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"rooms_lon": -123.24807
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_fullname",
+				"maxSeats"
+			],
+			"ORDER": "maxSeats"
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_fullname"
+			],
+			"APPLY": [
+				{
+					"maxSeats": {
+						"MAX": "rooms_lon"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_fullname": "Hugh Dempster Pavilion",
+			"maxSeats": -123.24807
+		}
+	]
+}

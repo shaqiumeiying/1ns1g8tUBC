@@ -1047,25 +1047,28 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						IS: {
-							rooms_href: "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/AERL-120"
+						EQ: {
+							rooms_lon: -123.24807
 						}
 					},
 					OPTIONS: {
 						COLUMNS: [
-							"rooms_shortname",
 							"rooms_fullname",
-							"rooms_number",
-							"rooms_name",
-							"rooms_address",
-							"rooms_lat",
-							"rooms_lon",
-							"rooms_seats",
-							"rooms_type",
-							"rooms_furniture",
-							"rooms_href"
+							"maxSeats"
 						],
-						ORDER: "rooms_seats"
+						ORDER: "maxSeats"
+					},
+					TRANSFORMATIONS: {
+						GROUP: [
+							"rooms_fullname"
+						],
+						APPLY: [
+							{
+								maxSeats: {
+									MAX: "rooms_lon"
+								}
+							}
+						]
 					}
 				};
 				try {

@@ -249,14 +249,16 @@ export default class QueryScript {
 
 	private validateOrder(order: any, columns: string[]): boolean {
 		if (typeof order === "string") {
-			let parts = order.split("_");
-			if (parts.length !== 2) {
-				return false;
-			}
-			let id = parts[0];
-			let field = parts[1];
-			if (!this.validFields.includes(field)) {
-				return false;
+			if (order.includes("_")) {
+				let parts = order.split("_");
+				if (parts.length !== 2) {
+					return false;
+				}
+				let id = parts[0];
+				let field = parts[1];
+				if (!this.validFields.includes(field)) {
+					return false;
+				}
 			}
 			if (!columns.includes(order)) {
 				return false;
