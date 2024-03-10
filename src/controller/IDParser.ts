@@ -47,3 +47,34 @@ export function parseIDFromKey(key: string, existingIds: Set<string>, ids: Set<s
 	}
 	return ids;
 }
+
+export function parseIDFromTransformations(transformations: any, existingIds: Set<string>): Set<string> {
+	let ids = new Set<string>();
+
+	// Parse IDs from the GROUP field
+	for (let item of transformations["GROUP"]) {
+		if (typeof item === "string" && item.includes("_")) {
+			let id = item.split("_")[0];
+			if (!ids.has(id) && !existingIds.has(id)) {
+				ids.add(id);
+			}
+		}
+	}
+
+	// Parse IDs from the APPLY field
+	for (let item of transformations["APPLY"]) {
+		for (let applyKey in item) {
+			let applyRule = item[applyKey];
+			for (let key in applyRule) {
+				if (typeof applyRule[key] === "string" && applyRule[key].includes("_")) {
+					let id = applyRule[key].split("_")[0];
+					if (!ids.has(id) && !existingIds.has(id)) {
+						ids.add(id);
+					}
+				}
+			}
+		}
+	}
+
+	return ids;
+}

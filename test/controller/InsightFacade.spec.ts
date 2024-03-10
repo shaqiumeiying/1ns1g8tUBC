@@ -1046,15 +1046,10 @@ describe("InsightFacade", function () {
 			it("manual check for debug", async function () {
 				let result;
 				const query = {
-					WHERE: {
-						IS: {
-							sections_href: "adhe"
-						}
-					},
+					WHERE: {},
 					OPTIONS: {
 						COLUMNS: [
-							"overallMax",
-							"sections_dept"
+							"overallMax"
 						]
 					},
 					TRANSFORMATIONS: {

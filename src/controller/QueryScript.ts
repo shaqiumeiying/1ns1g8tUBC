@@ -1,4 +1,4 @@
-import {parseIDFromKey, parseIDFromArray, parseIDFromObject, parseID} from "./IDParser";
+import {parseIDFromKey, parseIDFromArray, parseIDFromObject, parseID, parseIDFromTransformations} from "./IDParser";
 
 export default class QueryScript {
 	private id: Set<string>;
@@ -17,10 +17,12 @@ export default class QueryScript {
 		let transformationsIds;
 		if (this.ifTransformationsExist) {
 			this.transformations = query["TRANSFORMATIONS"];
+			let transIds = parseIDFromTransformations(query["TRANSFORMATIONS"], optionIds);
+			this.id = new Set([...whereIds, ...optionIds, ...transIds]);
+		} else {
+			this.id = new Set([...whereIds, ...optionIds]);
 		}
-		let transIds = parseID(query["TRANSFORMATIONS"], optionIds);
 		this.applykeys = new Set();
-		this.id = new Set([...whereIds, ...optionIds, ...transIds]);
 		this.where = query["WHERE"];
 		this.options = query["OPTIONS"];
 		this.isMField = ["avg", "pass", "fail", "audit", "year", "lat", "lon", "seats"];
@@ -51,11 +53,8 @@ export default class QueryScript {
 	}
 
 	public ValidateQuery(): boolean {
-		if (
-			typeof this.where !== "object" ||
-			typeof this.options !== "object" ||
-			(this.ifTransformationsExist && typeof this.transformations !== "object")
-		) {
+		if (typeof this.where !== "object" || typeof this.options !== "object" ||
+			(this.ifTransformationsExist && typeof this.transformations !== "object")) {
 			return false;
 		} // If WHERE or OPTIONS is not an object, return false
 		if (Object.keys(this.options).length === 0) {
@@ -67,15 +66,10 @@ export default class QueryScript {
 		if (this.ifTransformationsExist && Object.keys(this.transformations).length !== 2) {
 			return false;
 		} // If transformations has more than two keys, return false
-		if (this.ifTransformationsExist) {
-			if (!this.validateTransformations(this.transformations)) {
-				return false;
-			}
-		}
-		if (!this.validateWhere(this.where)) {
+		if (this.ifTransformationsExist && !this.validateTransformations(this.transformations)) {
 			return false;
 		}
-		if (!this.validateOptions(this.options)) {
+		if (!this.validateWhere(this.where) || !this.validateOptions(this.options)) {
 			return false;
 		}
 		return true;
@@ -85,20 +79,15 @@ export default class QueryScript {
 		if (!Object.keys(transformations).includes("GROUP") || !Object.keys(transformations).includes("APPLY")) {
 			return false;
 		}
-		for (let item of transformations["GROUP"]) {
-			if (typeof item !== "string" || !item.includes("_")) {
-				return false;
-			}
-			let field = item.split("_")[1];
-			if (!this.validFields.includes(field)) {
-				return false;
-			}
+		if (!transformations["GROUP"].every((item: any) => typeof item === "string" && item.includes("_")
+			&& this.validFields.includes(item.split("_")[1]))) {
+			return false;
 		}
 		if (!Object.keys(transformations).includes("APPLY") || !Array.isArray(transformations["APPLY"])) {
 			return false;
 		}
 		this.applykeys.clear();
-		for (let item of transformations["APPLY"]) {
+		return transformations["APPLY"].every((item: any) => {
 			if (typeof item !== "object" || Object.keys(item).length !== 1) {
 				return false;
 			}
@@ -117,11 +106,8 @@ export default class QueryScript {
 				return false;
 			}
 			let field = key.split("_")[1];
-			if (!this.validFields.includes(field) || !this.isValidApplyToken(applyToken, field)) {
-				return false;
-			}
-		}
-		return true;
+			return this.validFields.includes(field) && this.isValidApplyToken(applyToken, field);
+		});
 	}
 
 	public validateWhere(where: any): boolean {
@@ -188,14 +174,10 @@ export default class QueryScript {
 		if (!this.isValidSField(field) || typeof string !== "string") {
 			return false;
 		}
-		// This line of code for regex is referenced from: https://stackoverflow.com/questions/10868308/regular-expression-a-za-z0-9
-		// Updated regex to allow for blank strings and strings with only asterisks
 		const regex = /^(\*)?[^*]*(\*)?$/;
 		if (!regex.test(string)) {
 			return false;
 		}
-		// Check if the string value contains at most two '*' This line of code for counting asterisks is referenced from:
-		// https://stackoverflow.com/questions/881085/count-the-number-of-asterisks-in-a-string
 		const asteriskCount = (string.match(/\*/g) || []).length;
 		if (asteriskCount > 2) {
 			return false;
@@ -253,39 +235,33 @@ export default class QueryScript {
 
 	private validateOrder(order: any, columns: string[]): boolean {
 		if (typeof order === "string") {
-			if (order.includes("_")) {
-				let parts = order.split("_");
-				if (parts.length !== 2) {
-					return false;
-				}
-				let id = parts[0];
-				let field = parts[1];
-				if (!this.validFields.includes(field)) {
-					return false;
-				}
-			}
-			if (!columns.includes(order)) {
-				return false;
-			}
-			return true;
+			return this.validateOrderString(order, columns);
 		}
-		if (typeof order === "object" && "dir" in order && "keys" in order) {
-			const dir = order["dir"];
-			const keys = order["keys"];
-			if (dir !== "UP" && dir !== "DOWN") {
-				return false;
-			}
-			if (!Array.isArray(keys) || !keys.every((item) => typeof item === "string")) {
-				return false;
-			}
-			for (let key of keys) {
-				if (!columns.includes(key)) {
-					return false;
-				}
-			}
-			return true;
+		if (typeof order === "object") {
+			return this.validateOrderObject(order, columns);
 		}
 		return false;
+	}
+
+	private validateOrderString(order: string, columns: string[]): boolean {
+		if (order.includes("_")) {
+			let parts = order.split("_");
+			if (parts.length !== 2 || !this.validFields.includes(parts[1])) {
+				return false;
+			}
+		}
+		return columns.includes(order);
+	}
+
+	private validateOrderObject(order: any, columns: string[]): boolean {
+		const {dir, keys} = order;
+
+		if (Object.keys(order).length !== 2 || (dir !== "UP" && dir !== "DOWN")) {
+			return false;
+		}
+
+		return Array.isArray(keys) && keys.length > 0
+			&& keys.every((item) => typeof item === "string" && columns.includes(item));
 	}
 
 	private isValidApplyToken(applyToken: string, field: string): boolean {
