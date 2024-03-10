@@ -1046,27 +1046,20 @@ describe("InsightFacade", function () {
 			it("manual check for debug", async function () {
 				let result;
 				const query = {
-					WHERE: {
-						IS: {
-							sections_dept: "anat"
-						}
-					},
+					WHERE: {},
 					OPTIONS: {
 						COLUMNS: [
-							"sections_title",
-							"overallAvg",
-							"sections_dept"
+							"overallMax"
 						]
 					},
 					TRANSFORMATIONS: {
 						GROUP: [
-							"sections_title",
 							"sections_dept"
 						],
 						APPLY: [
 							{
-								overallAvg: {
-									AVG: "sections_avg"
+								overallMax: {
+									MAX: "sections_avg"
 								}
 							}
 						]
