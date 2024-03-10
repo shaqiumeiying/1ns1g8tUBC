@@ -1047,25 +1047,37 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						EQ: {
-							rooms_lon: -123.24807
+						GT: {
+							sections_avg: 98
 						}
 					},
 					OPTIONS: {
 						COLUMNS: [
-							"rooms_fullname",
-							"maxSeats"
+							"sections_title",
+							"overallAvg",
+							"overallPass"
 						],
-						ORDER: "maxSeats"
+						ORDER: {
+							dir: "DOWN",
+							keys: [
+								"overallPass"
+							]
+						}
 					},
 					TRANSFORMATIONS: {
 						GROUP: [
-							"rooms_fullname"
+							"sections_title",
+							"sections_dept"
 						],
 						APPLY: [
 							{
-								maxSeats: {
-									MAX: "rooms_lon"
+								overallAvg: {
+									AVG: "sections_avg"
+								}
+							},
+							{
+								overallPass: {
+									MIN: "sections_pass"
 								}
 							}
 						]

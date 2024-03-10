@@ -7,6 +7,7 @@ export default class DataTransformer {
 	private combinedFields: string[];
 	private operationName: string[];
 	private operationKeys: string[];
+	private NumberFileds: string[];
 
 	constructor() {
 		this.groupKeys = [];
@@ -14,6 +15,7 @@ export default class DataTransformer {
 		this.combinedFields = [];
 		this.operationName = [];
 		this.operationKeys = [];
+		this.NumberFileds = ["lat", "lon", "seats", "avg", "pass", "fail", "audit", "year"];
 	}
 
 	public executeTransformations(transformations: any, data: any, id: string): any {
@@ -66,7 +68,11 @@ export default class DataTransformer {
 			// Add group keys and their values to the result object
 			let groupKeysValues = groupKey.split("_");
 			for (let i = 0; i < this.groupKeys.length; i++) {
-				resultObj[this.groupKeys[i]] = groupKeysValues[i];
+				if (this.NumberFileds.includes(this.groupKeys[i])) {
+					resultObj[this.groupKeys[i]] = Number(groupKeysValues[i]);
+				} else {
+					resultObj[this.groupKeys[i]] = groupKeysValues[i];
+				}
 			}
 			// Apply operations to the group
 			for (let i = 0; i < this.operationKeys.length; i++) {
