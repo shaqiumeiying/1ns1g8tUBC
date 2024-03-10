@@ -238,8 +238,12 @@ export default class QueryScript {
 		for (let column of columns) {
 			let parts = column.split("_");
 			let field = parts[1];
-			if (!this.validFields.includes(field)) {
+			if (this.ifTransformationsExist) {
 				if (!groupKeys.has(column) && !this.applykeys.has(column)) {
+					return false;
+				}
+			} else {
+				if (!this.validFields.includes(field)) {
 					return false;
 				}
 			}
