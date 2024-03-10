@@ -1,5 +1,6 @@
 import Sections from "./Sections";
 import {InsightResult} from "./IInsightFacade";
+import Decimal from "decimal.js";
 
 export default class DataTransformer {
 	private groupKeys: string[];
@@ -74,7 +75,6 @@ export default class DataTransformer {
 					resultObj[this.groupKeys[i]] = groupKeysValues[i];
 				}
 			}
-			// Apply operations to the group
 			for (let i = 0; i < this.operationKeys.length; i++) {
 				let operation = this.operationKeys[i];
 				let operationName = this.operationName[i];
@@ -83,14 +83,11 @@ export default class DataTransformer {
 				let calculatedValue;
 				switch (operation) {
 					case "AVG":
-						calculatedValue = Number(
-							(values.reduce((a: number, b: number) => a + b, 0) / values.length).toFixed(2)
-						);
+						calculatedValue = this.calculateAverage(values);
 						break;
 					case "MIN":
 						calculatedValue = Math.min(...values);
 						break;
-					// Add more cases here for other operations
 					case "MAX":
 						calculatedValue = Math.max(...values);
 						break;
@@ -106,5 +103,16 @@ export default class DataTransformer {
 			result.push(resultObj);
 		}
 		return result;
+	}
+
+	// Calculate the average of an array of numbers, these code are referenced from CPSC 310 SPEC
+	// Link: https://sites.google.com/view/ubccpsc310-23w2/project/checkpoint-2?authuser=0
+	private calculateAverage(values: number[]): number {
+		let total = new Decimal(0);
+		for (let num of values) {
+			total = total.add(new Decimal(num));
+		}
+		let avg = total.toNumber() / values.length;
+		return Number(avg.toFixed(2));
 	}
 }

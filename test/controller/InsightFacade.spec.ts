@@ -1047,22 +1047,16 @@ describe("InsightFacade", function () {
 				let result;
 				const query = {
 					WHERE: {
-						GT: {
-							sections_avg: 98
+						IS: {
+							sections_dept: "anat"
 						}
 					},
 					OPTIONS: {
 						COLUMNS: [
 							"sections_title",
 							"overallAvg",
-							"overallPass"
-						],
-						ORDER: {
-							dir: "DOWN",
-							keys: [
-								"overallPass"
-							]
-						}
+							"sections_dept"
+						]
 					},
 					TRANSFORMATIONS: {
 						GROUP: [
@@ -1073,11 +1067,6 @@ describe("InsightFacade", function () {
 							{
 								overallAvg: {
 									AVG: "sections_avg"
-								}
-							},
-							{
-								overallPass: {
-									MIN: "sections_pass"
 								}
 							}
 						]
