@@ -16,11 +16,11 @@ export default class QueryScript {
 		let optionIds = parseID(query["OPTIONS"], whereIds);
 		let transformationsIds;
 		if (this.ifTransformationsExist) {
-			transformationsIds = parseID(query["TRANSFORMATIONS"], optionIds);
 			this.transformations = query["TRANSFORMATIONS"];
 		}
+		let transIds = parseID(query["TRANSFORMATIONS"], optionIds);
 		this.applykeys = new Set();
-		this.id = new Set([...whereIds, ...optionIds]);
+		this.id = new Set([...whereIds, ...optionIds, ...transIds]);
 		this.where = query["WHERE"];
 		this.options = query["OPTIONS"];
 		this.isMField = ["avg", "pass", "fail", "audit", "year", "lat", "lon", "seats"];
