@@ -1,4 +1,4 @@
-import {parseIDFromKey, parseIDFromArray, parseIDFromObject, parseID, parseIDFromTransformations} from "./IDParser";
+import {parseID, parseIDFromTransformations} from "./IDParser";
 
 export default class QueryScript {
 	private id: Set<string>;
@@ -6,15 +6,17 @@ export default class QueryScript {
 	private options: any;
 	private transformations: any;
 	private ifTransformationsExist: boolean;
-	private applykeys: Set<string>;
-	private isMField: string[];
+	private queryFilds: Set<string> = new Set();
 	private validFields: string[];
+	private applykeys: Set<string>;
+	private validSeFields: string[];
+	private isMField: string[];
+	private validRFields: string[];
 
 	constructor(query: any) {
 		this.ifTransformationsExist = this.CheckIfTransformationsExist(query);
 		let whereIds = parseID(query["WHERE"]);
 		let optionIds = parseID(query["OPTIONS"], whereIds);
-		let transformationsIds;
 		if (this.ifTransformationsExist) {
 			this.transformations = query["TRANSFORMATIONS"];
 			let transIds = parseIDFromTransformations(query["TRANSFORMATIONS"], optionIds);
@@ -26,8 +28,10 @@ export default class QueryScript {
 		this.where = query["WHERE"];
 		this.options = query["OPTIONS"];
 		this.isMField = ["avg", "pass", "fail", "audit", "year", "lat", "lon", "seats"];
-		this.validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid",
-			"fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type", "furniture", "href"];
+		this.validSeFields = ["avg","pass","fail","audit","year","dept","id","instructor","title","uuid"];
+		this.validRFields = ["fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type",
+			"furniture", "href"];
+		this.validFields = [...(this.validSeFields), ...(this.validRFields)];
 	}
 
 	private CheckIfTransformationsExist(query: any): boolean {
@@ -52,6 +56,16 @@ export default class QueryScript {
 		}
 	}
 
+	private validateQueryFields(): boolean {
+		let fromRFields = Array.from(this.queryFilds).some((field) => this.validRFields.includes(field));
+		let fromSeFields = Array.from(this.queryFilds).some((field) => this.validSeFields.includes(field));
+		// If some fields are from RFields and some fields are from SeFields, return false
+		if (fromRFields && fromSeFields) {
+			return false;
+		}
+		return true;
+	}
+
 	public ValidateQuery(): boolean {
 		if (typeof this.where !== "object" || typeof this.options !== "object" ||
 			(this.ifTransformationsExist && typeof this.transformations !== "object")) {
@@ -69,10 +83,10 @@ export default class QueryScript {
 		if (this.ifTransformationsExist && !this.validateTransformations(this.transformations)) {
 			return false;
 		}
-		if (!this.validateWhere(this.where) || !this.validateOptions(this.options)) {
-			return false;
+		if (this.validateWhere(this.where) && this.validateOptions(this.options)) {
+			return this.validateQueryFields();
 		}
-		return true;
+		return false;
 	}
 
 	public validateTransformations(transformations: any): boolean {
@@ -106,7 +120,11 @@ export default class QueryScript {
 				return false;
 			}
 			let field = key.split("_")[1];
-			return this.validFields.includes(field) && this.isValidApplyToken(applyToken, field);
+			if(!this.validFields.includes(field) || !this.isValidApplyToken(applyToken, field)) {
+				return false;
+			}
+			this.queryFilds.add(field);
+			return true;
 		});
 	}
 
@@ -156,7 +174,7 @@ export default class QueryScript {
 		if (!this.isMField.includes(field) || typeof number !== "number") {
 			return false;
 		}
-
+		this.queryFilds.add(field);
 		return true;
 	}
 
@@ -182,7 +200,7 @@ export default class QueryScript {
 		if (asteriskCount > 2) {
 			return false;
 		}
-
+		this.queryFilds.add(field);
 		return true;
 	}
 
@@ -201,22 +219,17 @@ export default class QueryScript {
 		if (!this.validateColumns(columns)) {
 			return false;
 		}
-		if (Object.keys(options).includes("ORDER") && !this.validateOrder(options["ORDER"], columns)) {
-			return false;
-		}
-		return true;
+		return !(Object.keys(options).includes("ORDER") && !this.validateOrder(options["ORDER"], columns));
 	}
 
 	private validateColumns(columns: any): boolean {
 		if (columns.length === 0 || !Array.isArray(columns) || !columns.every((item) => typeof item === "string")) {
 			return false;
 		}
-
 		let groupKeys = new Set<string>();
 		if (this.ifTransformationsExist) {
 			groupKeys = new Set(this.transformations["GROUP"]);
 		}
-
 		for (let column of columns) {
 			let parts = column.split("_");
 			let field = parts[1];
@@ -228,6 +241,7 @@ export default class QueryScript {
 				if (!this.validFields.includes(field)) {
 					return false;
 				}
+				this.queryFilds.add(field);
 			}
 		}
 		return true;
@@ -250,18 +264,28 @@ export default class QueryScript {
 				return false;
 			}
 		}
-		return columns.includes(order);
+		if (!columns.includes(order)) {
+			return false;
+		}
+		this.queryFilds.add(order.split("_")[1]);
+		return true;
 	}
 
 	private validateOrderObject(order: any, columns: string[]): boolean {
 		const {dir, keys} = order;
-
 		if (Object.keys(order).length !== 2 || (dir !== "UP" && dir !== "DOWN")) {
 			return false;
 		}
-
-		return Array.isArray(keys) && keys.length > 0
-			&& keys.every((item) => typeof item === "string" && columns.includes(item));
+		if (Array.isArray(keys) && keys.length > 0) {
+			for (let item of keys) {
+				if (typeof item !== "string" || !columns.includes(item)) {
+					return false;
+				}
+			}
+			this.queryFilds.add(keys[0].split("_")[1]);
+			return true;
+		}
+		return false;
 	}
 
 	private isValidApplyToken(applyToken: string, field: string): boolean {
@@ -270,15 +294,8 @@ export default class QueryScript {
 			return false;
 		}
 		if (["MAX", "MIN", "AVG", "SUM"].includes(applyToken)) {
-			if (!this.isMField.includes(field)) {
-				return false;
-			} else {
-				return true;
-			}
+			return this.isMField.includes(field);
 		}
-		if (["COUNT"].includes(applyToken) && !this.validFields.includes(field)) {
-			return false;
-		}
-		return true;
+		return !(["COUNT"].includes(applyToken) && !this.validFields.includes(field));
 	}
 }
