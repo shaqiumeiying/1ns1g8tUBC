@@ -1,0 +1,30 @@
+{
+	"title": "Invalid Edge cases Sections with Room filed",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_seats": 67
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"overallMax",
+				"sections_dept"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"overallMax": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

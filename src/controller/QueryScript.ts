@@ -1,4 +1,4 @@
-import {parseIDFromKey, parseIDFromArray, parseIDFromObject, parseID} from "./IDParser";
+import {parseID, parseIDFromTransformations} from "./IDParser";
 
 export default class QueryScript {
 	private id: Set<string>;
@@ -6,26 +6,32 @@ export default class QueryScript {
 	private options: any;
 	private transformations: any;
 	private ifTransformationsExist: boolean;
-	private applykeys: Set<string>;
-	private isMField: string[];
+	private queryFilds: Set<string> = new Set();
 	private validFields: string[];
+	private applykeys: Set<string>;
+	private validSeFields: string[];
+	private isMField: string[];
+	private validRFields: string[];
 
 	constructor(query: any) {
 		this.ifTransformationsExist = this.CheckIfTransformationsExist(query);
 		let whereIds = parseID(query["WHERE"]);
 		let optionIds = parseID(query["OPTIONS"], whereIds);
-		let transformationsIds;
 		if (this.ifTransformationsExist) {
 			this.transformations = query["TRANSFORMATIONS"];
+			let transIds = parseIDFromTransformations(query["TRANSFORMATIONS"], optionIds);
+			this.id = new Set([...whereIds, ...optionIds, ...transIds]);
+		} else {
+			this.id = new Set([...whereIds, ...optionIds]);
 		}
-		let transIds = parseID(query["TRANSFORMATIONS"], optionIds);
 		this.applykeys = new Set();
-		this.id = new Set([...whereIds, ...optionIds, ...transIds]);
 		this.where = query["WHERE"];
 		this.options = query["OPTIONS"];
 		this.isMField = ["avg", "pass", "fail", "audit", "year", "lat", "lon", "seats"];
-		this.validFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid",
-			"fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type", "furniture", "href"];
+		this.validSeFields = ["avg","pass","fail","audit","year","dept","id","instructor","title","uuid"];
+		this.validRFields = ["fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type",
+			"furniture", "href"];
+		this.validFields = [...(this.validSeFields), ...(this.validRFields)];
 	}
 
 	private CheckIfTransformationsExist(query: any): boolean {
@@ -50,12 +56,19 @@ export default class QueryScript {
 		}
 	}
 
+	private validateQueryFields(): boolean {
+		let fromRFields = Array.from(this.queryFilds).some((field) => this.validRFields.includes(field));
+		let fromSeFields = Array.from(this.queryFilds).some((field) => this.validSeFields.includes(field));
+		// If some fields are from RFields and some fields are from SeFields, return false
+		if (fromRFields && fromSeFields) {
+			return false;
+		}
+		return true;
+	}
+
 	public ValidateQuery(): boolean {
-		if (
-			typeof this.where !== "object" ||
-			typeof this.options !== "object" ||
-			(this.ifTransformationsExist && typeof this.transformations !== "object")
-		) {
+		if (typeof this.where !== "object" || typeof this.options !== "object" ||
+			(this.ifTransformationsExist && typeof this.transformations !== "object")) {
 			return false;
 		} // If WHERE or OPTIONS is not an object, return false
 		if (Object.keys(this.options).length === 0) {
@@ -67,38 +80,28 @@ export default class QueryScript {
 		if (this.ifTransformationsExist && Object.keys(this.transformations).length !== 2) {
 			return false;
 		} // If transformations has more than two keys, return false
-		if (this.ifTransformationsExist) {
-			if (!this.validateTransformations(this.transformations)) {
-				return false;
-			}
-		}
-		if (!this.validateWhere(this.where)) {
+		if (this.ifTransformationsExist && !this.validateTransformations(this.transformations)) {
 			return false;
 		}
-		if (!this.validateOptions(this.options)) {
-			return false;
+		if (this.validateWhere(this.where) && this.validateOptions(this.options)) {
+			return this.validateQueryFields();
 		}
-		return true;
+		return false;
 	}
 
 	public validateTransformations(transformations: any): boolean {
 		if (!Object.keys(transformations).includes("GROUP") || !Object.keys(transformations).includes("APPLY")) {
 			return false;
 		}
-		for (let item of transformations["GROUP"]) {
-			if (typeof item !== "string" || !item.includes("_")) {
-				return false;
-			}
-			let field = item.split("_")[1];
-			if (!this.validFields.includes(field)) {
-				return false;
-			}
+		if (!transformations["GROUP"].every((item: any) => typeof item === "string" && item.includes("_")
+			&& this.validFields.includes(item.split("_")[1]))) {
+			return false;
 		}
 		if (!Object.keys(transformations).includes("APPLY") || !Array.isArray(transformations["APPLY"])) {
 			return false;
 		}
 		this.applykeys.clear();
-		for (let item of transformations["APPLY"]) {
+		return transformations["APPLY"].every((item: any) => {
 			if (typeof item !== "object" || Object.keys(item).length !== 1) {
 				return false;
 			}
@@ -117,11 +120,12 @@ export default class QueryScript {
 				return false;
 			}
 			let field = key.split("_")[1];
-			if (!this.validFields.includes(field) || !this.isValidApplyToken(applyToken, field)) {
+			if(!this.validFields.includes(field) || !this.isValidApplyToken(applyToken, field)) {
 				return false;
 			}
-		}
-		return true;
+			this.queryFilds.add(field);
+			return true;
+		});
 	}
 
 	public validateWhere(where: any): boolean {
@@ -170,7 +174,7 @@ export default class QueryScript {
 		if (!this.isMField.includes(field) || typeof number !== "number") {
 			return false;
 		}
-
+		this.queryFilds.add(field);
 		return true;
 	}
 
@@ -188,19 +192,15 @@ export default class QueryScript {
 		if (!this.isValidSField(field) || typeof string !== "string") {
 			return false;
 		}
-		// This line of code for regex is referenced from: https://stackoverflow.com/questions/10868308/regular-expression-a-za-z0-9
-		// Updated regex to allow for blank strings and strings with only asterisks
 		const regex = /^(\*)?[^*]*(\*)?$/;
 		if (!regex.test(string)) {
 			return false;
 		}
-		// Check if the string value contains at most two '*' This line of code for counting asterisks is referenced from:
-		// https://stackoverflow.com/questions/881085/count-the-number-of-asterisks-in-a-string
 		const asteriskCount = (string.match(/\*/g) || []).length;
 		if (asteriskCount > 2) {
 			return false;
 		}
-
+		this.queryFilds.add(field);
 		return true;
 	}
 
@@ -219,29 +219,29 @@ export default class QueryScript {
 		if (!this.validateColumns(columns)) {
 			return false;
 		}
-		if (Object.keys(options).includes("ORDER") && !this.validateOrder(options["ORDER"], columns)) {
-			return false;
-		}
-		return true;
+		return !(Object.keys(options).includes("ORDER") && !this.validateOrder(options["ORDER"], columns));
 	}
 
 	private validateColumns(columns: any): boolean {
 		if (columns.length === 0 || !Array.isArray(columns) || !columns.every((item) => typeof item === "string")) {
 			return false;
 		}
-
 		let groupKeys = new Set<string>();
 		if (this.ifTransformationsExist) {
 			groupKeys = new Set(this.transformations["GROUP"]);
 		}
-
 		for (let column of columns) {
 			let parts = column.split("_");
 			let field = parts[1];
-			if (!this.validFields.includes(field)) {
+			if (this.ifTransformationsExist) {
 				if (!groupKeys.has(column) && !this.applykeys.has(column)) {
 					return false;
 				}
+			} else {
+				if (!this.validFields.includes(field)) {
+					return false;
+				}
+				this.queryFilds.add(field);
 			}
 		}
 		return true;
@@ -249,36 +249,40 @@ export default class QueryScript {
 
 	private validateOrder(order: any, columns: string[]): boolean {
 		if (typeof order === "string") {
-			if (order.includes("_")) {
-				let parts = order.split("_");
-				if (parts.length !== 2) {
-					return false;
-				}
-				let id = parts[0];
-				let field = parts[1];
-				if (!this.validFields.includes(field)) {
-					return false;
-				}
-			}
-			if (!columns.includes(order)) {
-				return false;
-			}
-			return true;
+			return this.validateOrderString(order, columns);
 		}
-		if (typeof order === "object" && "dir" in order && "keys" in order) {
-			const dir = order["dir"];
-			const keys = order["keys"];
-			if (dir !== "UP" && dir !== "DOWN") {
+		if (typeof order === "object") {
+			return this.validateOrderObject(order, columns);
+		}
+		return false;
+	}
+
+	private validateOrderString(order: string, columns: string[]): boolean {
+		if (order.includes("_")) {
+			let parts = order.split("_");
+			if (parts.length !== 2 || !this.validFields.includes(parts[1])) {
 				return false;
 			}
-			if (!Array.isArray(keys) || !keys.every((item) => typeof item === "string")) {
-				return false;
-			}
-			for (let key of keys) {
-				if (!columns.includes(key)) {
+		}
+		if (!columns.includes(order)) {
+			return false;
+		}
+		this.queryFilds.add(order.split("_")[1]);
+		return true;
+	}
+
+	private validateOrderObject(order: any, columns: string[]): boolean {
+		const {dir, keys} = order;
+		if (Object.keys(order).length !== 2 || (dir !== "UP" && dir !== "DOWN")) {
+			return false;
+		}
+		if (Array.isArray(keys) && keys.length > 0) {
+			for (let item of keys) {
+				if (typeof item !== "string" || !columns.includes(item)) {
 					return false;
 				}
 			}
+			this.queryFilds.add(keys[0].split("_")[1]);
 			return true;
 		}
 		return false;
@@ -290,15 +294,8 @@ export default class QueryScript {
 			return false;
 		}
 		if (["MAX", "MIN", "AVG", "SUM"].includes(applyToken)) {
-			if (!this.isMField.includes(field)) {
-				return false;
-			} else {
-				return true;
-			}
+			return this.isMField.includes(field);
 		}
-		if (["COUNT"].includes(applyToken) && !this.validFields.includes(field)) {
-			return false;
-		}
-		return true;
+		return !(["COUNT"].includes(applyToken) && !this.validFields.includes(field));
 	}
 }

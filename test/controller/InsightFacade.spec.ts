@@ -1046,10 +1046,15 @@ describe("InsightFacade", function () {
 			it("manual check for debug", async function () {
 				let result;
 				const query = {
-					WHERE: {},
+					WHERE: {
+						GT: {
+							sections_avg: 67
+						}
+					},
 					OPTIONS: {
 						COLUMNS: [
-							"overallMax"
+							"overallMax",
+							"sections_dept"
 						]
 					},
 					TRANSFORMATIONS: {
