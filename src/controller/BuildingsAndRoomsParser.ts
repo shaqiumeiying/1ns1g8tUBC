@@ -88,15 +88,16 @@ export default class BuildingsAndRoomsParser {
 				name: "",
 				seats: 0,
 				type: "",
-				furniture: ""
+				furniture: "",
+				href: "",
 			};
 
 			for (const item of table.childNodes) {
-
 				if (item.attrs[0].value === RoomProcessor.RoomFields[0]) {
 					for (const child of item.childNodes) {
 						if (child.nodeName === "a") {
 							room.number = child.childNodes[0].value.trim();
+							room.href = child.attrs.find((attr: any) => attr.name === "href").value.trim();
 							break;
 						}
 					}
@@ -126,11 +127,6 @@ export default class BuildingsAndRoomsParser {
 			const matchingRooms = CleanedRooms.filter((r) => r.shortname === building.shortname);
 
 			for (const matchingRoom of matchingRooms) {
-				let href = building.href;
-				href = href.replace(/^\./, ""); // Remove the '.' at the start
-				href = "http://students.ubc.ca" + href; // Add the base URL at the start
-				href = href.substring(0, href.lastIndexOf("/"))
-					+ "/room/" + building.shortname + "-" + matchingRoom.number;
 
 				const combinedInfo = new Rooms(
 					building.fullname,
@@ -143,7 +139,7 @@ export default class BuildingsAndRoomsParser {
 					parseInt(matchingRoom.seats, 10),
 					matchingRoom.type,
 					matchingRoom.furniture,
-					href
+					matchingRoom.href
 				);
 
 				room.push(combinedInfo);
