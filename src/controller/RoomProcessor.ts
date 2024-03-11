@@ -15,6 +15,7 @@ export default class RoomProcessor {
 
 	public validBldgTable: any[] = [];
 	public validRoomTable: any[] = [];
+	private path: string = "";
 	public async validateRooms(id: string, content: string): Promise<Rooms[]> {
 		const brp = new BuildingsAndRoomsParser();
 		try {
@@ -133,12 +134,17 @@ export default class RoomProcessor {
 
 					if (anchorElement && anchorElement.attrs && anchorElement.attrs.length > 0) {
 						const hrefAttribute = anchorElement.attrs.find((attr: any) => attr.name === "href");
-
+						// todo: Extract the href attribute
 						if (hrefAttribute && hrefAttribute.value) {
 							// Extract the content between "./campus/discover/buildings-and-classrooms/" and ".htm"
 							const match = hrefAttribute
-								.value.match(/\/campus\/discover\/buildings-and-classrooms\/(.*?).htm/);
-
+								.value.match(/.*\/(.+?)\.htm/);
+							const parts = hrefAttribute.value.split("/");
+							// Remove the first element (empty) and the last element (filename)
+							parts.shift();
+							parts.pop();
+							// Join the remaining elements with '/' to get the path
+							this.path = parts.join("/");
 							if (match && match[1]) {
 								const extractedPart = match[1];
 								validBuildingHtmls.push(extractedPart);
@@ -152,7 +158,7 @@ export default class RoomProcessor {
 	}
 
 	private async isValidBldgHtml(html: string[],rawFile: JSZip): Promise<string[]> {
-		const directoryPath = "campus/discover/buildings-and-classrooms";
+		const directoryPath = this.path;
 
 		try {
 			const allFiles = await Promise.all(html.map(async (fileName) => {
@@ -174,7 +180,7 @@ export default class RoomProcessor {
 
 	private async extractRoomsFromBuildingHtmls(rawFile: JSZip, buildingHtmls: string[]): Promise<any[]> {
 		const validRooms: any[] = [];
-		const path = "campus/discover/buildings-and-classrooms/";
+		const path = this.path + "/";
 		const promises = buildingHtmls.map(async (shortName) => {
 			const filePath = `${path}${shortName}.htm`; // push b into each room tr
 			const fileEntry = rawFile.file(filePath);

@@ -64,6 +64,7 @@ describe("InsightFacade", function () {
 	let validTDCellExist: string;
 	let smallTest: string;
 	let campus: string;
+	let indifferentfolder: string;
 
 	let rooms: string;
 
@@ -111,6 +112,7 @@ describe("InsightFacade", function () {
 		validTDCellExist = await getContentFromArchives("RoomValid_TDCellExist.zip");
 		smallTest = await getContentFromArchives("small test.zip");
 		campus = await getContentFromArchives("campus.zip");
+		indifferentfolder = await getContentFromArchives("differentFolder.zip");
 
 		// Just in case there is anything hanging around from a previous run of the test suite
 		await clearDisk();
@@ -123,6 +125,15 @@ describe("InsightFacade", function () {
 		afterEach(async function () {
 			await clearDisk();
 		});
+		it ("should be able to add a dataset in different folder", async function () {
+			try {
+				const result = await facade.addDataset("edge", indifferentfolder, InsightDatasetKind.Rooms);
+				expect(result).to.deep.equal(["edge"]);
+			} catch (err) {
+				expect.fail("Should have fulfilled");
+			}
+		});
+
 		it("should reject with no room table in building", async function () {
 			try {
 				await facade.addDataset("invalidBldgNoRoomTable", invalidBldgNoRoomTable, InsightDatasetKind.Rooms);
