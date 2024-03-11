@@ -133,7 +133,7 @@ export default class RoomProcessor {
 
 					if (anchorElement && anchorElement.attrs && anchorElement.attrs.length > 0) {
 						const hrefAttribute = anchorElement.attrs.find((attr: any) => attr.name === "href");
-
+						// todo: Extract the href attribute
 						if (hrefAttribute && hrefAttribute.value) {
 							// Extract the content between "./campus/discover/buildings-and-classrooms/" and ".htm"
 							const match = hrefAttribute
