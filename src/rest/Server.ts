@@ -1,6 +1,8 @@
 import express, {Application, Request, Response} from "express";
 import * as http from "http";
 import cors from "cors";
+import InsightFacade from "../controller/InsightFacade";
+
 
 export default class Server {
 	private readonly port: number;
@@ -85,8 +87,22 @@ export default class Server {
 		this.express.get("/echo/:msg", Server.echo);
 
 		// TODO: your other endpoints should go here
+		// this.express.put("/echo/:id/:kind", Server.addDataset);
+		// this.express.delete("/echo/:id", Server.removeDataset);
+		// this.express.get("/echo", Server.getDataset);
 
 	}
+
+	// todo:
+	// private static async addDataset(req: Request, res: Response) {
+	// 	try {
+	// 		console.log(`Server::addDataset(..) - params: ${JSON.stringify(req.params)}`);
+	// 		const response = Server.performAddDataset(req.params.msg);
+	// 		res.status(200).json({result: response});
+	// 	} catch (err) {
+	// 		res.status(400).json({error: err});
+	// 	}
+	// }
 
 	// The next two methods handle the echo service.
 	// These are almost certainly not the best place to put these, but are here for your reference.
