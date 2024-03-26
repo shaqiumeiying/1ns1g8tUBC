@@ -142,11 +142,11 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	public static writeFile(id: string, content: any): Promise<any> {
+	public static async writeFile(id: string, content: any): Promise<any> {
 		let path = "data/" + id + ".json";
 		let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {
-			fs.writeFile(path, data, (err) => {
+			fs.outputJSON(path, data, (err) => {
 				if (err) {
 					reject(err);
 				}
@@ -154,6 +154,21 @@ export default class InsightFacade implements IInsightFacade {
 			});
 		});
 	}
+
+
+	// public static async writeFile(id: string, content: any): Promise<any> {
+	// 	const dir = "data";
+	// 	const path = `${dir}/${id}.json`;
+	// 	const data = JSON.stringify(content);
+	//
+	// 	// Ensure the directory exists
+	// 	await fs.ensureDir(dir);
+	//
+	// 	// Write the file
+	// 	await fs.promises.writeFile(path, data);
+	//
+	// 	return "Successfully wrote the file to the disk";
+	// }
 
 	public async loadData(): Promise<any> {
 		let path = "data/";
@@ -171,7 +186,8 @@ export default class InsightFacade implements IInsightFacade {
 			);
 			return this.datasets;
 		} catch (error) {
-			throw new InsightError("Failed to read the processed folder or file");
+			console.warn((error as Error).message);
+			console.warn((error as Error).stack);
 		}
 	}
 

@@ -2,12 +2,17 @@ import express, {Application, Request, Response} from "express";
 import * as http from "http";
 import cors from "cors";
 import InsightFacade from "../controller/InsightFacade";
+import {InsightDatasetKind, InsightError, InsightResult} from "../controller/IInsightFacade";
 
 
 export default class Server {
 	private readonly port: number;
 	private express: Application;
 	private server: http.Server | undefined;
+	private static facade: InsightFacade = new InsightFacade();
+	public reInitFacade() {
+		Server.facade = new InsightFacade();
+	}
 
 	constructor(port: number) {
 		console.info(`Server::<init>( ${port} )`);
@@ -87,22 +92,78 @@ export default class Server {
 		this.express.get("/echo/:msg", Server.echo);
 
 		// TODO: your other endpoints should go here
-		// this.express.put("/echo/:id/:kind", Server.addDataset);
-		// this.express.delete("/echo/:id", Server.removeDataset);
-		// this.express.get("/echo", Server.getDataset);
+		this.express.put("/dataset/:id/:kind", Server.addDataset);
+		this.express.delete("/dataset/:id", Server.removeDataset);
+		this.express.get("/datasets", Server.listDatasets);
+		this.express.post("/query", Server.performQuery);
 
 	}
 
-	// todo:
-	// private static async addDataset(req: Request, res: Response) {
-	// 	try {
-	// 		console.log(`Server::addDataset(..) - params: ${JSON.stringify(req.params)}`);
-	// 		const response = Server.performAddDataset(req.params.msg);
-	// 		res.status(200).json({result: response});
-	// 	} catch (err) {
-	// 		res.status(400).json({error: err});
-	// 	}
-	// }
+	private static async performQuery(req: Request, res: Response) {
+		try {
+			console.log(`Server::performQuery(..) - params: ${JSON.stringify(req.params)}`);
+			const response = Server.performQueryOnDataset(req.body);
+			res.status(200).json({result: response});
+		} catch (err) {
+			res.status(400).json({error: err});
+		}
+
+	}
+
+	private static performQueryOnDataset(query: any): Promise<InsightResult[]> {
+		return Server.facade.performQuery(query);
+	}
+
+
+	private static async listDatasets(req: Request, res: Response) {
+		console.log(`Server::listDatasets(..) - params: ${JSON.stringify(req.params)}`);
+		const response = Server.performListDatasets();
+		res.status(200).json({result: response});
+
+	}
+
+	private static performListDatasets(): Promise<any[]> {
+		return Server.facade.listDatasets();
+
+	}
+
+	private static async removeDataset(req: Request, res: Response) {
+		try {
+			console.log(`Server::removeDataset(..) - params: ${JSON.stringify(req.params)}`);
+			const response = Server.performRemoveDataset(req);
+			res.status(200).json({result: response});
+		} catch (err) {
+			if (err instanceof InsightError) {
+				res.status(400).json({error: err});
+			} else {
+				res.status(404).json({error: err});
+			}
+		}
+	}
+
+	private static performRemoveDataset(msg: Request): Promise<string> {
+		return Server.facade.removeDataset(msg.params.id);
+
+	}
+
+	private static async addDataset(req: Request, res: Response) {
+		try {
+			console.log(`Server::addDataset(..) - params: ${JSON.stringify(req.params)}`);
+			const response = await Server.performAddDataset(req);
+			res.status(200).json({result: response});
+		} catch (err) {
+			res.status(400).json({error: err});
+		}
+	}
+
+	private static performAddDataset(msg: Request): Promise<string[]> {
+		return Server.facade.addDataset(
+			msg.params.id,
+			msg.body.toString("base64"),
+			msg.params.kind === "sections" ?
+				InsightDatasetKind.Sections : InsightDatasetKind.Rooms
+		);
+	}
 
 	// The next two methods handle the echo service.
 	// These are almost certainly not the best place to put these, but are here for your reference.
