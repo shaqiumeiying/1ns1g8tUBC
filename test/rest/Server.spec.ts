@@ -102,14 +102,17 @@ describe("Facade D3", function () {
 		});
 		it("GET test pass", async () =>  {
 			try {
-				await facade.addDataset("simon",
-					await getContentFromArchives("test/resources/archives/valid_courses.zip"),
+				const abc = await facade.addDataset("simon",
+					await getContentFromArchives("valid_courses.zip"),
 					InsightDatasetKind.Sections);
+				// facade.addDataset("simon",
+				// 	fs.readFileSync("test/resources/archives/invalid_no_section.zip").toString("base64"),
+				// 	InsightDatasetKind.Sections);
 				return request("http://localhost:4321")
 					.get("/datasets")
 					.then( function (res: Response)  {
 						expect(res.status).to.be.equal(200);
-						expect(res.body.result).to.deep.equal([{id: "simon", kind: "sections", numRows: 2}]);
+						expect(res.body.result).to.have.deep.members([{id: "simon", kind: "sections", numRows: 2}]);
 					})
 					.catch(function (err)  {
 						expect.fail();
@@ -122,7 +125,7 @@ describe("Facade D3", function () {
 			try {
 				return request("http://localhost:4321")
 					.post("/query")
-					.send(readJSONSync("test/resources/query/invalid/invalid.json"))
+					.send(readJSONSync("test/resources/queries/invalid/invalid.json"))
 					.set("Content-Type", "application/json")
 					.then( function (res: Response)  {
 						expect(res.status).to.be.equal(400);

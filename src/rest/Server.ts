@@ -102,7 +102,7 @@ export default class Server {
 	private static async performQuery(req: Request, res: Response) {
 		try {
 			console.log(`Server::performQuery(..) - params: ${JSON.stringify(req.params)}`);
-			const response = Server.performQueryOnDataset(req.body);
+			const response = await Server.performQueryOnDataset(req.body);
 			res.status(200).json({result: response});
 		} catch (err) {
 			res.status(400).json({error: err});
@@ -117,9 +117,8 @@ export default class Server {
 
 	private static async listDatasets(req: Request, res: Response) {
 		console.log(`Server::listDatasets(..) - params: ${JSON.stringify(req.params)}`);
-		const response = Server.performListDatasets();
+		const response = await Server.performListDatasets();
 		res.status(200).json({result: response});
-
 	}
 
 	private static performListDatasets(): Promise<any[]> {
@@ -130,7 +129,7 @@ export default class Server {
 	private static async removeDataset(req: Request, res: Response) {
 		try {
 			console.log(`Server::removeDataset(..) - params: ${JSON.stringify(req.params)}`);
-			const response = Server.performRemoveDataset(req);
+			const  response = await Server.performRemoveDataset(req);
 			res.status(200).json({result: response});
 		} catch (err) {
 			if (err instanceof InsightError) {
