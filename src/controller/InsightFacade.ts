@@ -129,6 +129,7 @@ export default class InsightFacade implements IInsightFacade {
 						numRows: value.length,
 					};
 					result.push(info);
+					console.log(result, "sections");
 				} else {
 					let info: InsightDataset = {
 						id: key,
@@ -144,9 +145,9 @@ export default class InsightFacade implements IInsightFacade {
 
 	public static async writeFile(id: string, content: any): Promise<any> {
 		let path = "data/" + id + ".json";
-		let data = JSON.stringify(content);
+		// let data = JSON.stringify(content);
 		return new Promise((resolve, reject) => {
-			fs.outputJSON(path, data, (err) => {
+			fs.outputJSON(path, content, (err) => {
 				if (err) {
 					reject(err);
 				}
