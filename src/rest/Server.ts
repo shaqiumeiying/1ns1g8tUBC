@@ -105,7 +105,7 @@ export default class Server {
 			const response = await Server.facade.performQuery(JSON.parse(JSON.stringify(req.body)));
 			res.status(200).json({result: response});
 		} catch (err) {
-			res.status(400).json({error: err});
+			res.status(400).json({error: "Error processing query"});
 		}
 
 	}
@@ -129,9 +129,9 @@ export default class Server {
 			res.status(200).json({result: response});
 		} catch (err) {
 			if (err instanceof InsightError) {
-				res.status(400).json({error: err});
+				res.status(400).json({error: "Error processing removeDataset"});
 			} else {
-				res.status(404).json({error: err});
+				res.status(404).json({error: "Error the dataset does not exist"});
 			}
 		}
 	}
@@ -147,7 +147,7 @@ export default class Server {
 			const response = await Server.performAddDataset(req);
 			res.status(200).json({result: response});
 		} catch (err) {
-			res.status(400).json({error: err});
+			res.status(400).json({error: "Error processing dataset"});
 		}
 	}
 

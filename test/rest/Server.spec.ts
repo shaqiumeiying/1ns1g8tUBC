@@ -34,7 +34,7 @@ describe("Facade D3", function () {
 
 	beforeEach(async function () {
 		await clearDisk();
-		server.reInitFacade();
+		await server.reInitFacade();
 		// might want to add some process logging here to keep track of what is going on
 	});
 
