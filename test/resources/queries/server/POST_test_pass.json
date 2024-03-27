@@ -1,0 +1,57 @@
+{
+	"WHERE": {
+		"GT": {
+			"sections_avg": 98
+		}
+	},
+	"OPTIONS": {
+		"COLUMNS": [
+			"sections_title",
+			"overallAvg",
+			"overallPass",
+			"overallSum",
+			"overallCount",
+			"overallMIN"
+		],
+		"ORDER": {
+			"dir": "DOWN",
+			"keys": [
+				"overallPass",
+				"overallSum"
+			]
+		}
+	},
+	"TRANSFORMATIONS": {
+		"GROUP": [
+			"sections_title",
+			"sections_dept"
+		],
+		"APPLY": [
+			{
+				"overallAvg": {
+					"AVG": "sections_avg"
+				}
+			},
+			{
+				"overallPass": {
+					"MIN": "sections_pass"
+				}
+			},
+			{
+				"overallSum": {
+					"SUM": "sections_pass"
+				}
+			},
+			{
+				"overallCount": {
+					"COUNT": "sections_title"
+				}
+			},
+			{
+				"overallMIN": {
+					"MIN": "sections_avg"
+				}
+			}
+		]
+	}
+}

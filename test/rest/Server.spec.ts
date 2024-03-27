@@ -136,5 +136,68 @@ describe("Facade D3", function () {
 				console.log(err);
 			}
 		});
+		it( "POST should pass", async () =>  {
+			try {
+				const add = await facade.addDataset("sections",
+					await getContentFromArchives("pair.zip"),
+					InsightDatasetKind.Sections);
+				return request("http://localhost:4321")
+					.post("/query")
+					.send(readJSONSync("test/resources/queries/server/POST_test_pass.json"))
+					.set("Content-Type", "application/json")
+					.then( function (res: Response)  {
+						expect(res.status).to.be.equal(200);
+						expect(res.body.result).to.have.length(9);
+					}).catch(function (err)  {
+						expect.fail();
+					});
+			} catch (err) {
+				console.log(err);
+			}
+		});
+		it("should REMOVE datasets", async () =>  {
+			try {
+				const add = await facade.addDataset("sections",
+					await getContentFromArchives("pair.zip"),
+					InsightDatasetKind.Sections);
+				return request("http://localhost:4321")
+					.delete("/dataset/sections")
+					.then( function (res: Response)  {
+						expect(res.status).to.be.equal(200);
+						expect(res.body.result).to.be.equal("sections");
+					}).catch(function (err)  {
+						expect.fail();
+					});
+			} catch (err) {
+				console.log(err);
+			}
+		});
+
+		it("should 404", async () =>  {
+			try {
+				return request("http://localhost:4321")
+					.delete("/dataset/sections")
+					.then( function (res: Response)  {
+						expect(res.status).to.be.equal(404);
+					}).catch(function (err)  {
+						expect.fail();
+					});
+			} catch (err) {
+				console.log(err);
+			}
+		});
+		it("should 400", async () =>  {
+			try {
+				return request("http://localhost:4321")
+					.delete("/dataset/_sections")
+					.then( function (res: Response)  {
+						expect(res.status).to.be.equal(400);
+					}).catch(function (err)  {
+						expect.fail();
+					});
+			} catch (err) {
+				console.log(err);
+			}
+		});
 	});
 });
