@@ -102,16 +102,12 @@ export default class Server {
 	private static async performQuery(req: Request, res: Response) {
 		try {
 			console.log(`Server::performQuery(..) - params: ${JSON.stringify(req.params)}`);
-			const response = await Server.performQueryOnDataset(req.body);
+			const response = await Server.facade.performQuery(JSON.parse(JSON.stringify(req.body)));
 			res.status(200).json({result: response});
 		} catch (err) {
 			res.status(400).json({error: err});
 		}
 
-	}
-
-	private static performQueryOnDataset(query: any): Promise<InsightResult[]> {
-		return Server.facade.performQuery(query);
 	}
 
 

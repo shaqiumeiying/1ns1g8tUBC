@@ -92,6 +92,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
 		try {
+			await this.checkIfDataHasBeenLoaded();
 			let parsedQuery = JSON.parse(JSON.stringify(query));
 			const queryScript = new QueryScript(query);
 			const where = queryScript.getWhere();
@@ -129,7 +130,6 @@ export default class InsightFacade implements IInsightFacade {
 						numRows: value.length,
 					};
 					result.push(info);
-					console.log(result, "sections");
 				} else {
 					let info: InsightDataset = {
 						id: key,
