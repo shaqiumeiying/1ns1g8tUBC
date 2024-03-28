@@ -1,13 +1,66 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+	'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+	sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+	monospace;
+}
+
+.header {
+	width: 100%;
+	height: 100px; /* Adjust as needed */
+	padding: 25px;
+	text-align: center;
+	font-size: 50px; /* Change this to your preferred size */
+	font-weight: bold;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: adds a slight shadow for depth */
+	background-image: url('https://www.ubc.ca/_assets/img/aerial_moa_panorama-1920x700.jpg'); /* Change this to your preferred image */
+	background-size: cover; /* Ensures the image covers the entire header */
+	background-repeat: no-repeat; /* Prevents the image from repeating */
+	background-position: center; /* Centers the image in the header */
+	-webkit-text-fill-color: transparent;
+	text-shadow: 0.5px 0.5px 0.5px #58a6f5, -0.5px -0.5px 0.5px #efe862, 0.5px -0.5px 0.5px #a8ef5c, -0.5px 0.5px 0.5px #467bef;
+}
+
+.submit-button {
+	width: 100px; /* Adjust as needed */
+	height: 35px; /* Adjust as needed */
+	padding: 5px; /* Adjust as needed */
+	font-size: 14px; /* Adjust as needed */
+	background-color: #f8f9fa;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	display: inline-block;
+}
+.input-text {
+	font-size: 20px; /* Adjust as needed */
+}
+.custom-file-upload {
+	display: inline-block;
+	width: 80px;
+	height: 20px;
+	padding: 6px;
+	cursor: pointer;
+	background-color: #f8f9fa; /* Change this to your preferred color */
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 14px; /* Adjust as needed */
+}
+
+.file-upload {
+	display: none;
+}
+
+.app-container {
+	display: flex;
+}
+
+.content {
+	width: 100%;
 }

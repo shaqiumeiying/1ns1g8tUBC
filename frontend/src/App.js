@@ -1,31 +1,29 @@
-import React, { useState } from 'react';
-import { Chart, Series } from 'devextreme-react/chart';
+import React from 'react';
+// import { Chart, Series } from 'devextreme-react/chart';
+import DatasetForm from './DatasetForm';
+import Sidebar from "./Sidebar"; // Import the DatasetForm component
 
 function App() {
-	const [dataSource, setDataSource] = useState([]);
+	// const [dataSource, setDataSource] = useState([]);
 
+	// TODO: this is a placeholder for the actual functionality
 	const handleSubmit = async (event) => {
-		event.preventDefault();
-		const courseId = event.target.elements.courseId.value;
-		const courseDept = event.target.elements.courseDept.value;
-
-		const response = await fetch(`/api/courses?courseId=${courseId}&courseDept=${courseDept}`);
-		const data = await response.json();
-
-		setDataSource(data);
 	};
 
 	return (
-		<div>
-			<form onSubmit={handleSubmit}>
-				<input name="courseId" type="text" placeholder="Course ID" required />
-				<input name="courseDept" type="text" placeholder="Course Department" required />
-				<button type="submit">Submit</button>
-			</form>
-
-			<Chart id="chart" dataSource={dataSource}>
-				<Series valueField="avg" argumentField="id" name="Course Average" type="bar" color="#ffaa66" />
-			</Chart>
+		<div className="app-container">
+			<Sidebar />
+			<div className="content">
+				<DatasetForm />
+				<hr />
+				<form onSubmit={handleSubmit}>
+					<input name="DatasetID" type="text" placeholder="Dataset ID" required />
+					<button type="submit">Show First User Story 1</button>
+				</form>
+				{/*<Chart id="chart" dataSource={dataSource}>*/}
+				{/*	<Series valueField="avg" argumentField="id" name="Course Average" type="bar" color="#ffaa66" />*/}
+				{/*</Chart>*/}
+			</div>
 		</div>
 	);
 }
