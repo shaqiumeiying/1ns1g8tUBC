@@ -173,7 +173,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	public async loadData(): Promise<any> {
 		let path = "data/";
-		await fs.ensureDir("data");
+		await fs.ensureDir("data/");
 		try {
 			const files = await fs.promises.readdir(path);
 			await Promise.all(

@@ -13,18 +13,21 @@ function DatasetForm({ onAdd }) {
 		}
 
 		const formData = new FormData();
-		formData.append('id', id);
-		formData.append('file', file);
+		formData.append("file",file);
 
 		// TODO: the button handler should call the endpoint to add the dataset
 		// this version is a place holder
 		try {
-			const response = await fetch(`/dataset/${id}/sections`, {
+			const response = await fetch(`http://localhost:4321/dataset/${id}/sections`, {
 				method: 'PUT',
+				headers: {
+					"Content-Type": "application/x-zip-compressed",
+				},
 				body: formData,
 			});
 
 			if (response.ok) {
+				console.log(response);
 				setFeedback('Dataset added successfully.');
 			} else {
 				setFeedback('Error adding dataset.');
