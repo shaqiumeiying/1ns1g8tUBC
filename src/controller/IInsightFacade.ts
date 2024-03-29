@@ -42,7 +42,7 @@ export class ResultTooLargeError extends Error {
 
 export interface IInsightFacade {
 	/**
-	 * Add a dataset to insightUBC.
+	 * FunctionAdd a dataset to insightUBC.
 	 *
 	 * @param id  The id of the dataset being added. Follows the format /^[^_]+$/
 	 * @param content  The base64 content of the dataset. This content should be in the form of a serialized zip file.

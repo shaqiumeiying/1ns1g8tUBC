@@ -1,7 +1,7 @@
 import React from 'react';
 // import { Chart, Series } from 'devextreme-react/chart';
-import DatasetForm from './DatasetForm';
-import Sidebar from "./Sidebar"; // Import the DatasetForm component
+import Sidebar from "./Sidebar";
+import DatasetForm from "./DatasetForm";
 
 function App() {
 	// const [dataSource, setDataSource] = useState([]);

@@ -3,9 +3,12 @@ import './Sidebar.css';
 
 function Sidebar() {
 	const [datasets, setDatasets] = useState([]);
+	const [loading, setLoading] = useState(false);
+	const [feedback, setFeedback] = useState('');
 
 	const fetchDatasets = async () => {
 		try {
+			setLoading(true);
 			const response = await fetch("http://localhost:4321/datasets", {
 				method: "GET",
 				headers: {
@@ -16,16 +19,27 @@ function Sidebar() {
 			console.log(data);
 			// Convert the object to an array
 			const dataArray = Object.values(data.result);
+
+			if (dataArray.length === 0){
+				setFeedback('No datasets found.');
+			} else {
+				setFeedback('');}
+
 			setDatasets(dataArray);
+
 		} catch (error) {
 			console.error(`Fetch failed: ${error}`);
+		} finally {
+			setLoading(false);
 		}
 	};
 
 	return (
 		<div className="sidebar">
 			<h2>Dataset ID been added:</h2>
-			<button onClick={fetchDatasets}>List Datasets</button>
+			<button onClick={fetchDatasets} disabled={loading}>
+				{loading ? 'Loading...' : 'List Datasets'}
+			</button>
 			<ul>
 				{datasets.map((dataset, index) => (
 					<li key={index}>
@@ -35,8 +49,11 @@ function Sidebar() {
 					</li>
 				))}
 			</ul>
+			{feedback && <p>{feedback}</p>}
 		</div>
 	);
+
 }
 
 export default Sidebar;
+
