@@ -52,6 +52,7 @@ function Sidebar() {
 			{feedback && <p>{feedback}</p>}
 		</div>
 	);
+
 }
 
 export default Sidebar;
