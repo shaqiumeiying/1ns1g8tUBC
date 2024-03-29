@@ -66,7 +66,7 @@ export default class DataTransformer {
 		for (let groupKey in groupedData) {
 			let group = groupedData[groupKey];
 			let resultObj: any = {};
-			// Add group keys and their values to the result object
+			// FunctionAdd group keys and their values to the result object
 			let groupKeysValues = groupKey.split("_");
 			for (let i = 0; i < this.groupKeys.length; i++) {
 				if (this.NumberFileds.includes(this.groupKeys[i])) {
