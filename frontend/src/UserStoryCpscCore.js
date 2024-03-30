@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Chart, ConstantLine, Export, Label, Legend, Series, ValueAxis, VisualRange } from 'devextreme-react/chart';
 
-function UserStory4level() {
+function UserStoryCpscCore() {
 	const [id, setId] = useState('');
 	const [feedback, setFeedback] = useState('');
 	const [result, setResult] = useState(null);
@@ -9,6 +9,7 @@ function UserStory4level() {
 	const highAverage = 80;
 
 	const customizeText = useCallback((arg) => `${arg.valueText}`, []);
+
 
 	const handleQuery = async (event) => {
 		event.preventDefault();
@@ -27,19 +28,33 @@ function UserStory4level() {
 				WHERE: {
 					AND: [
 						{
+							OR: [
+								{
+									IS: {
+										[`${inputId}_id`]: "310"
+									}
+								},
+								{
+									IS: {
+										[`${inputId}_id`]: "313"
+									}
+								},
+								{
+									IS: {
+										[`${inputId}_id`]: "320"
+									}
+								}
+							]
+						},
+						{
 							IS: {
 								[`${inputId}_dept`]: "cpsc"
 							}
 						},
 						{
-							IS: {
-								[`${inputId}_id`]: "4*"
-							}
-						},
-						{
 							NOT: {
-								EQ: {
-									[`${inputId}_year`]: 1900
+								IS: {
+									[`${inputId}_instructor`]: ""
 								}
 							}
 						}
@@ -47,15 +62,22 @@ function UserStory4level() {
 				},
 				OPTIONS: {
 					COLUMNS: [
-						[`${inputId}_dept`].toString(),
 						[`${inputId}_id`].toString(),
+						[`${inputId}_instructor`].toString(),
 						"overallAvg"
-					]
+					],
+					ORDER: {
+						dir: "UP",
+						keys: [
+							[`${inputId}_id`].toString()
+						]
+					}
 				},
 				TRANSFORMATIONS: {
 					GROUP: [
+						[`${inputId}_id`].toString(),
 						[`${inputId}_dept`].toString(),
-						[`${inputId}_id`].toString()
+						[`${inputId}_instructor`].toString()
 					],
 					APPLY: [
 						{
@@ -92,11 +114,12 @@ function UserStory4level() {
 	};
 
 	const customizePoint = useCallback((arg) => {
-		return arg.value > highAverage ? { color: '#f17746', hoverStyle: { color: '#f17746' } } : null;
+		return arg.value > highAverage ? { color: '#f17746', hoverStyle: { color: '#f17746' } } : {color: '#4caf50', hoverStyle: { color: '#4caf50' }}
 	}, [highAverage]);
 
+
 	const customizeLabel = useCallback((arg) => {
-		return arg.value > highAverage ? { visible: true, backgroundColor: '#f17746' } : null;
+		return arg.value > highAverage ? { visible: true, backgroundColor: '#f17746' } :  {visible: true, backgroundColor: '#4caf50'}
 	}, [highAverage]);
 
 	const PopupWindow = ({ message, onClose }) => (
@@ -117,7 +140,7 @@ function UserStory4level() {
 					placeholder="ID"
 					required
 				/>
-				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '160px'}}> 4 Level CPSC Advising
+				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '200px'}}> CPSC Core Course Advising
 				</button>
 				{feedback && <p style={{marginLeft: '10px'}}>{feedback}</p>}
 			</form>
@@ -133,7 +156,7 @@ function UserStory4level() {
 					>
 						<Series
 							valueField="overallAvg"
-							argumentField={`${id}_id`}
+							argumentField={`${id}_instructor`}
 							name="Overall Average"
 							type="bar"
 							color="#4caf50"
@@ -165,4 +188,4 @@ function UserStory4level() {
 	);
 }
 
-export default UserStory4level;
+export default UserStoryCpscCore;

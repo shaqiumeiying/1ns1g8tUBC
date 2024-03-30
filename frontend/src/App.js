@@ -3,6 +3,8 @@ import React from 'react';
 import Sidebar from "./Sidebar";
 import DatasetForm from "./DatasetForm";
 import UserStory4level from "./UserStory4level";
+import UserStoryArt from "./UserStoryArt";
+import UserStoryCpscCore from "./UserStoryCpscCore";
 
 function App() {
 	// const [dataSource, setDataSource] = useState([]);
@@ -22,6 +24,8 @@ function App() {
 				{/*	<Series valueField="avg" argumentField="id" name="Course Average" type="bar" color="#ffaa66" />*/}
 				{/*</Chart>*/}
 				<UserStory4level />
+				<UserStoryArt />
+				<UserStoryCpscCore />
 			</div>
 		</div>
 	);
