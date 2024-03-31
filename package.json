@@ -32,6 +32,7 @@
 		"chai": "4.3.4",
 		"chai-as-promised": "7.1.1",
 		"chai-http": "4.4.0",
+		"concurrently": "^8.2.2",
 		"eslint": "8.31.0",
 		"eslint-config-prettier": "8.6.0",
 		"eslint-plugin-import": "2.26.0",
@@ -52,6 +53,7 @@
 		"lint": "eslint src test --ext .ts",
 		"fix": "yarn lint --fix",
 		"start": "ts-node src/App.ts",
-		"frontend": "cd frontend && yarn start"
+		"frontend": "cd frontend && yarn start",
+		"start:all": "concurrently \"yarn start\" \"yarn frontend\""
 	}
 }

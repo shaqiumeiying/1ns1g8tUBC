@@ -1,14 +1,18 @@
-import React, { useCallback, useState } from 'react';
-import { Chart, ConstantLine, Export, Label, Legend, Series, ValueAxis, VisualRange } from 'devextreme-react/chart';
+import React, { useState} from 'react';
+import {
+	Chart,
+	CommonSeriesSettings,
+	Aggregation,
+	SeriesTemplate,
+	ArgumentAxis,
+	Label, Legend, Export, Tooltip
+} from 'devextreme-react/chart';
 
 function UserStoryCpscCore() {
 	const [id, setId] = useState('');
 	const [feedback, setFeedback] = useState('');
 	const [result, setResult] = useState(null);
 	const [noResult, setShowPopup] = useState(false);
-	const highAverage = 80;
-
-	const customizeText = useCallback((arg) => `${arg.valueText}`, []);
 
 
 	const handleQuery = async (event) => {
@@ -92,7 +96,7 @@ function UserStoryCpscCore() {
 			const url = `http://localhost:4321/query`;
 			const response = await fetch(url, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {'Content-Type': 'application/json'},
 				body: JSON.stringify(query)
 			});
 
@@ -113,16 +117,8 @@ function UserStoryCpscCore() {
 		}
 	};
 
-	const customizePoint = useCallback((arg) => {
-		return arg.value > highAverage ? { color: '#f17746', hoverStyle: { color: '#f17746' } } : {color: '#4caf50', hoverStyle: { color: '#4caf50' }}
-	}, [highAverage]);
 
-
-	const customizeLabel = useCallback((arg) => {
-		return arg.value > highAverage ? { visible: true, backgroundColor: '#f17746' } :  {visible: true, backgroundColor: '#4caf50'}
-	}, [highAverage]);
-
-	const PopupWindow = ({ message, onClose }) => (
+	const PopupWindow = ({message, onClose}) => (
 		<div className="popup-window">
 			<div className="popup-content">
 				<p>{message}</p>
@@ -140,41 +136,28 @@ function UserStoryCpscCore() {
 					placeholder="ID"
 					required
 				/>
-				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '200px'}}> CPSC Core Course Advising
+				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '200px'}}> CPSC Core
+					Course Advising
 				</button>
 				{feedback && <p style={{marginLeft: '10px'}}>{feedback}</p>}
 			</form>
 			{result && (
 				<div>
-					<h2>Overall Average of CPSC 4 Level Courses</h2>
-					<Chart
-						id="chart"
-						dataSource={result}
-						customizePoint={customizePoint}
-						customizeLabel={customizeLabel}
-						style={{width: '900px'}}
-					>
-						<Series
-							valueField="overallAvg"
-							argumentField={`${id}_instructor`}
-							name="Overall Average"
-							type="bar"
-							color="#4caf50"
-						/>
-						<ValueAxis maxValueMargin={0.01}>
-							<VisualRange startValue={50}/>
-							<Label customizeText={customizeText}/>
-							<ConstantLine
-								width={2}
-								value={highAverage}
-								color="#f17746"
-								dashStyle="dash"
-							>
-								<Label text="High Average"/>
-							</ConstantLine>
-						</ValueAxis>
+					<h2>CPSC 3-level Core Course Instructors and Overall Average</h2>
+					<Chart id="chart"
+						   dataSource={result}
+						   style={{width: '900px'}}
+						   barGroupWidth={100}>
 						<Legend visible={true}/>
 						<Export enabled={true}/>
+						<CommonSeriesSettings argumentField={`${id}_instructor`} valueField="overallAvg" type="bar">
+							<Aggregation enabled={true} method="avg"></Aggregation>
+						</CommonSeriesSettings>
+						<SeriesTemplate nameField={`${id}_id`}></SeriesTemplate>
+						<ArgumentAxis>
+							<Label displayMode="rotate" alignment = "center"/>
+						</ArgumentAxis>
+						<Tooltip enabled={true} />
 					</Chart>
 				</div>
 			)}
