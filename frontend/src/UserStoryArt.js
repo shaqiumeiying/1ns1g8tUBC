@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Chart, ConstantLine, Export, Label, Legend, Series, ValueAxis, VisualRange } from 'devextreme-react/chart';
+import './UserStory.css';
 
 function UserStoryArt() {
 	const [feedback, setFeedback] = useState('');
@@ -248,7 +249,7 @@ function UserStoryArt() {
 				setResult(null);
 			} else {
 				setShowPopup(false);
-				setFeedback('Query successful.');
+				setFeedback('Query successful!');
 				// Add a new field that concatenates id_dept and id_id
 				const resultWithConcatenatedField = data.result.map(item => ({
 					...item,
@@ -259,7 +260,7 @@ function UserStoryArt() {
 			}
 
 		} catch (error) {
-			setFeedback('Error processing query.');
+			setFeedback('No Such Database');
 			setResult(null);
 		}
 	};
@@ -276,7 +277,7 @@ function UserStoryArt() {
 		<div className="popup-window">
 			<div className="popup-content">
 				<p>{message}</p>
-				<button onClick={onClose}>Close</button>
+				<button onClick={onClose}>OK</button>
 			</div>
 		</div>
 	);
@@ -290,7 +291,7 @@ function UserStoryArt() {
 					placeholder="ID"
 					required
 				/>
-				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '150px'}}>Art Course Advising
+				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '200px'}}>Art Course Advising
 				</button>
 				{feedback && <p style={{marginLeft: '10px'}}>{feedback}</p>}
 			</form>
@@ -330,7 +331,7 @@ function UserStoryArt() {
 			)}
 			{noResult && (
 				<PopupWindow
-					message="No result found."
+					message="No Result Found"
 					onClose={() => setShowPopup(false)}
 				/>
 			)}

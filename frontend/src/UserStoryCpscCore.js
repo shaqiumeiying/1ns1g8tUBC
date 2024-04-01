@@ -7,6 +7,7 @@ import {
 	ArgumentAxis,
 	Label, Legend, Export, Tooltip
 } from 'devextreme-react/chart';
+import './UserStory.css';
 
 function UserStoryCpscCore() {
 	const [id, setId] = useState('');
@@ -107,12 +108,12 @@ function UserStoryCpscCore() {
 				setResult(null);
 			} else {
 				setShowPopup(false);
-				setFeedback('Query successful.');
+				setFeedback('Query successful!');
 				setResult(data.result);
 			}
 
 		} catch (error) {
-			setFeedback('Error processing query.');
+			setFeedback('No Such Database');
 			setResult(null);
 		}
 	};
@@ -122,7 +123,7 @@ function UserStoryCpscCore() {
 		<div className="popup-window">
 			<div className="popup-content">
 				<p>{message}</p>
-				<button onClick={onClose}>Close</button>
+				<button onClick={onClose}>OK</button>
 			</div>
 		</div>
 	);
@@ -163,7 +164,7 @@ function UserStoryCpscCore() {
 			)}
 			{noResult && (
 				<PopupWindow
-					message="No result found."
+					message="No Result Found"
 					onClose={() => setShowPopup(false)}
 				/>
 			)}
