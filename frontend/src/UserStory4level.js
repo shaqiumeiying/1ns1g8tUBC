@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Chart, ConstantLine, Export, Label, Legend, Series, ValueAxis, VisualRange } from 'devextreme-react/chart';
-
+import './UserStory.css';
 function UserStory4level() {
 	const [id, setId] = useState('');
 	const [feedback, setFeedback] = useState('');
@@ -81,12 +81,12 @@ function UserStory4level() {
 				setResult(null);
 			} else {
 				setShowPopup(false);
-				setFeedback('Query successful.');
+				setFeedback('Query successful!');
 				setResult(data.result);
 			}
 
 		} catch (error) {
-			setFeedback('Error processing query.');
+			setFeedback('No such Database');
 			setResult(null);
 		}
 	};
@@ -103,7 +103,7 @@ function UserStory4level() {
 		<div className="popup-window">
 			<div className="popup-content">
 				<p>{message}</p>
-				<button onClick={onClose}>Close</button>
+				<button onClick={onClose}>OK</button>
 			</div>
 		</div>
 	);
@@ -117,7 +117,7 @@ function UserStory4level() {
 					placeholder="ID"
 					required
 				/>
-				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '160px'}}> 4 Level CPSC Advising
+				<button type="submit" className="submit-button" style={{marginLeft: '10px', width: '200px'}}> 4 Level CPSC Advising
 				</button>
 				{feedback && <p style={{marginLeft: '10px'}}>{feedback}</p>}
 			</form>
@@ -157,7 +157,7 @@ function UserStory4level() {
 			)}
 			{noResult && (
 				<PopupWindow
-					message="No result found."
+					message="No Result Found"
 					onClose={() => setShowPopup(false)}
 				/>
 			)}

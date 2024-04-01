@@ -1,0 +1,90 @@
+/* UserStory.css */
+
+.userstory {
+	width: 100%;
+	height: auto;
+	padding: 25px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	background-color: #f9f9f9;
+}
+
+.userstory form {
+	display: flex;
+	align-items: center;
+	margin-top: 20px;
+}
+
+.userstory .input-text {
+	width: 150px;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+.userstory .submit-button {
+	padding: 10px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	cursor: pointer;
+	border-radius: 5px;
+	width: 200px;
+}
+
+.userstory .submit-button:hover {
+	background-color: #45a049;
+}
+
+.userstory .submit-button:active {
+	background-color: #357835;
+}
+
+.userstory p {
+	margin-left: 10px;
+}
+
+.userstory h2 {
+	text-align: left;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.popup-window {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: white;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 20px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.popup-content {
+	text-align: center;
+}
+
+.popup-content p {
+	margin-bottom: 30px;
+}
+
+.popup-content button {
+	padding: 10px 20px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.popup-content button:hover {
+	background-color: #45a049;
+}
+
+.popup-content button:active {
+	background-color: #357835;
+}
