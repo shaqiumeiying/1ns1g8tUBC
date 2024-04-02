@@ -86,7 +86,7 @@ function UserStory4level() {
 			}
 
 		} catch (error) {
-			setFeedback('No such Database');
+			setFeedback('No such Dataset');
 			setResult(null);
 		}
 	};

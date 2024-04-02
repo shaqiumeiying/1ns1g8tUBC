@@ -55,11 +55,14 @@ function DatasetForm({ onAdd }) {
 			const response = await fetch(url, {
 				method: 'DELETE',
 			});
+			console.log(response);
 
 			if (response.ok) {
 				setRemoveFeedback('Dataset removed successfully.');
-			} else {
-				setRemoveFeedback('ID does not exist.');
+			} else if (response.status === 404) {
+				setRemoveFeedback('ID not found.');
+			} else{
+				setRemoveFeedback('Error removing dataset.');
 			}
 
 			setIdRemove('');

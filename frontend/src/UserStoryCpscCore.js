@@ -113,7 +113,7 @@ function UserStoryCpscCore() {
 			}
 
 		} catch (error) {
-			setFeedback('No Such Database');
+			setFeedback('No Such Dataset');
 			setResult(null);
 		}
 	};

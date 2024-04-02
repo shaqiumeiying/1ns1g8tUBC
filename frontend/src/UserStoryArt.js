@@ -260,7 +260,7 @@ function UserStoryArt() {
 			}
 
 		} catch (error) {
-			setFeedback('No Such Database');
+			setFeedback('No Such Dataset');
 			setResult(null);
 		}
 	};
