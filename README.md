@@ -1,45 +1,29 @@
-# CPSC 310 Project Repository
+# CPSC 310 Project - UBC Sections Insight
 
-This repository contains starter code for the class project.
-Please keep your repository private.
+This project is a frontend implementation of a Section Insights application using React. It allows users to perform basic functionalities such as add, remove and list sections datasets. Also we have designed a user story insights with a very specific settings, allow users to view visualized data with th chosen dataset.
 
-For information about the project, autotest, and the checkpoints, see the course webpage.
+## Video Link
 
-## Configuring your environment
+[![](https://markdown-videos-api.jorgenkh.no/youtube/RY8W9pO0X6w)](https://youtu.be/RY8W9pO0X6w)
 
-To start using this project, you need to get your development environment configured so that you can build and execute the code.
-To do this, follow these steps; the specifics of each step will vary based on your operating system:
+## Project Configurations
 
-1. [Install git](https://git-scm.com/downloads) (v2.X). You should be able to execute `git --version` on the command line after installation is complete.
-
-1. [Install Node LTS](https://nodejs.org/en/download/) (LTS: v18.X), which will also install NPM (you should be able to execute `node --version` and `npm --version` on the command line).
-
-1. [Install Yarn](https://yarnpkg.com/en/docs/install) (1.22.X). You should be able to execute `yarn --version`.
-
-1. Clone your repository by running `git clone REPO_URL` from the command line. You can get the REPO_URL by clicking on the green button on your project repository page on GitHub. Note that due to new department changes you can no longer access private git resources using https and a username and password. You will need to use either [an access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) or [SSH](https://help.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account).
-
-## Project commands
-
-Once your environment is configured you need to further prepare the project's tooling and dependencies.
-In the project folder:
+To start the demo, you need to get your development environment configured so that you can build and execute the code:
 
 1. `yarn install` to download the packages specified in your project's *package.json* to the *node_modules* directory.
 
-1. `yarn build` to compile your project. You must run this command after making changes to your TypeScript files. If it does not build locally, AutoTest will not be able to build it.
+2. `yarn start:all` to start the server and the frontend concurrently, this will take s couple of seconds or minutes to start. 
 
-1. `yarn test` to run the test suite.
-    - To run with coverage, run `yarn cover`
 
-1. `yarn lint` to lint your project code. If it does not lint locally, AutoTest will not run your tests when you submit your code.
+## User Stories
 
-1. `yarn pretty` to prettify your project code.
+We have implemented the following user stories, click below links for more details:
 
-If you are curious, some of these commands are actually shortcuts defined in [package.json -> scripts](./package.json).
+[Removing a Sections Dataset](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/52)
 
-## Running and testing from an IDE
+[Insight Graph - 4xx CPSC course average](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/56)
 
-IntelliJ Ultimate should be automatically configured the first time you open the project (IntelliJ Ultimate is a free download through the [JetBrains student program](https://www.jetbrains.com/community/education/#students/)).
+[Insight Graph - Arts lower level course average](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/58)
 
-### License
+[Insight Graph - CPSC core curriculum courses average and Instructor](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/59)
 
-While the readings for this course are licensed using [CC-by-SA](https://creativecommons.org/licenses/by-sa/3.0/), **checkpoint descriptions and implementations are considered private materials**. Please do not post or share your project solutions. We go to considerable lengths to make the project an interesting and useful learning experience for this course. This is a great deal of work, and while future students may be tempted by your solutions, posting them does not do them any real favours. Please be considerate with these private materials and not pass them along to others, make your repos public, or post them to other sites online.
