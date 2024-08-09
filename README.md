@@ -19,11 +19,11 @@ To start the demo, you need to get your development environment configured so th
 
 We have implemented the following user stories, click below links for more details:
 
-[Removing a Sections Dataset](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/52)
+[Removing a Sections Dataset](https://drive.google.com/file/d/1bfqpMWns96iAEoCbfswjIRJuaHqgWDVX/view?usp=sharing)
 
-[Insight Graph - 4xx CPSC course average](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/56)
+[Insight Graph - 4xx CPSC course average](https://drive.google.com/file/d/1_g3A4Zn4ZYQP2I-7PgvzjnPf1ccY0PPn/view?usp=sharing)
 
-[Insight Graph - Arts lower level course average](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/58)
+[Insight Graph - Arts lower level course average](https://drive.google.com/file/d/1DlyftoWRr0TzokSOlGO_9PBSNJR63ymq/view?usp=sharing)
 
-[Insight Graph - CPSC core curriculum courses average and Instructor](https://github.students.cs.ubc.ca/CPSC310-2023W-T2/project_team052/issues/59)
+[Insight Graph - CPSC core curriculum courses average and Instructor](https://drive.google.com/file/d/1uejfr4P8ZPyYWbFH-69mWuUr_bZuzPU_/view?usp=sharing)
 
