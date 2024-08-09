@@ -4,7 +4,7 @@ This project is a frontend implementation of a Section Insights application usin
 
 ## Video Link
 
-[![](https://markdown-videos-api.jorgenkh.no/youtube/RY8W9pO0X6w)](https://youtu.be/RY8W9pO0X6w)
+[![](https://markdown-videos-api.jorgenkh.no/youtube/6mPwTe0iQeU)](https://www.youtube.com/watch?v=6mPwTe0iQeU))
 
 ## Project Configurations
 
