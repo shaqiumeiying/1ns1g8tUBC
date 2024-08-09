@@ -1,7 +1,18 @@
 # CPSC 310 Project - UBC Sections Insight
 
-This project is a frontend implementation of a Section Insights application using React. It allows users to perform basic functionalities such as add, remove and list sections datasets. Also we have designed a user story insights with a very specific settings, allow users to view visualized data with th chosen dataset.
+InsightUBC is a comprehensive full-stack web application designed to enhance and simplify university operations. Developed using TypeScript, React, and DevExtreme, this robust platform addresses common administrative challenges by providing a streamlined solution for managing university data.
 
+## Key Features:
+
+- **Data Management**: Users can efficiently add, remove, and list sections datasets, ensuring that the university’s data remains accurate and up-to-date. This feature helps in managing academic schedules, course offerings, and departmental information with ease.
+
+- **User Story Insights**: The application includes a powerful user story insights component. This feature allows users to view visualized data based on specific settings and chosen datasets. It provides valuable insights into various aspects of university operations, aiding in better decision-making and strategic planning.
+
+- **Intuitive Interface**: InsightUBC boasts an intuitive and user-friendly interface, thanks to the integration of React and DevExtreme. The design ensures that users can navigate the application seamlessly, access critical information quickly, and perform tasks with minimal effort.
+
+- **Full-Stack Integration**: Leveraging the full-stack approach, InsightUBC ensures that both front-end and back-end components work harmoniously to deliver a smooth user experience. The application’s architecture supports scalability and adaptability, making it a future-proof solution for evolving university needs.
+
+By implementing InsightUBC, universities can achieve greater efficiency in managing their operations, reduce administrative overhead, and ultimately enhance the overall academic experience for students and staff alike.
 ## Video Link
 
 [![](https://markdown-videos-api.jorgenkh.no/youtube/6mPwTe0iQeU)](https://www.youtube.com/watch?v=6mPwTe0iQeU))
