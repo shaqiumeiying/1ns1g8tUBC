@@ -19,11 +19,11 @@ To start the demo, you need to get your development environment configured so th
 
 We have implemented the following user stories, click below links for more details:
 
-[Removing a Sections Dataset](https://drive.google.com/file/d/1bfqpMWns96iAEoCbfswjIRJuaHqgWDVX/view?usp=sharing)
+[Removing a Sections Dataset](https://drive.google.com/file/d/1bfqpMWns96iAEoCbfswjIRJuaHqgWDVX/view?usp=sharing){:target="_blank"}
 
-[Insight Graph - 4xx CPSC course average](https://drive.google.com/file/d/1_g3A4Zn4ZYQP2I-7PgvzjnPf1ccY0PPn/view?usp=sharing)
+[Insight Graph - 4xx CPSC course average](https://drive.google.com/file/d/1_g3A4Zn4ZYQP2I-7PgvzjnPf1ccY0PPn/view?usp=sharing){:target="_blank"}
 
-[Insight Graph - Arts lower level course average](https://drive.google.com/file/d/1DlyftoWRr0TzokSOlGO_9PBSNJR63ymq/view?usp=sharing)
+[Insight Graph - Arts lower level course average](https://drive.google.com/file/d/1DlyftoWRr0TzokSOlGO_9PBSNJR63ymq/view?usp=sharing){:target="_blank"}
 
-[Insight Graph - CPSC core curriculum courses average and Instructor](https://drive.google.com/file/d/1uejfr4P8ZPyYWbFH-69mWuUr_bZuzPU_/view?usp=sharing)
+[Insight Graph - CPSC core curriculum courses average and Instructor](https://drive.google.com/file/d/1uejfr4P8ZPyYWbFH-69mWuUr_bZuzPU_/view?usp=sharing){:target="_blank"}
 
